@@ -10,29 +10,40 @@
   </head>
 
   <body>
-    <nav class="navbar container align-center">
-      <div class="container align-left">
-        <img src="images/cesar_gopher.png" id="gopher" />
-        <a class="navbar-brand" href="/">cesarfuhr.dev</a>
-        <div class="container align-left">
-          <ul class="navbar-nav container align-left">
-            <li class="nav-item">
-              <a class="nav-link" href="blog.html">Blog</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="about.html">About</a>
-            </li>
-            <li hidden class="nav-item">
-              <a class="nav-link" href="feed.rss">RSS</a>
-            </li>
-          </ul>
-        </div>
-      </div>
+    <nav>
+      <ul class="navbar" id="navbar">
+        <li class="navbar-header">
+          <div class="navbar-brand">
+            <img src="images/cesar_gopher.png" id="gopher"/>
+            <a class="nav-link" href="/">cesarfuhr.dev</a>
+          </div>
+          <a class="nav-icon nav-link" href="javascript:void(0)" onclick="dropMenu()">||</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="blog.html">Blog</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="about.html">About</a>
+        </li>
+        <li hidden class="nav-item">
+          <a class="nav-link" href="feed.rss">RSS</a>
+        </li>
+      </ul>
     </nav>
 
     <main>
       <h1>Soon...</h1>
     </main>
 
+    <script>
+      function dropMenu() {
+        var x = document.getElementById("navbar");
+        if (x.className === "navbar") {
+          x.className += " dropped";
+        } else {
+          x.className = "navbar";
+        }
+      }
+    </script>
   </body>
 </html>

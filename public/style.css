@@ -15,25 +15,7 @@ body {
 
 main {
   margin: auto;
-  padding: 5rem 5%;
-}
-
-@media (min-width: 800px) {
-  main {
-    margin: auto;
-    padding: 5rem 15%;
-  }
-}
-
-@media (min-width: 1200px) {
-  main {
-    margin: auto;
-    padding: 5rem 25%;
-  }
-
-  #gopher {
-    height: 5rem;
-  }
+  padding: 5rem 25%;
 }
 
 #gopher {
@@ -42,27 +24,41 @@ main {
 
 .navbar {
   background: var(--light-grey);
-}
+  margin: 0;
+  padding-inline-start: 0;
 
-.navbar-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
   list-style: none; 
-  margin: auto;
+  transition: 0.2s;
 }
 
 .navbar-brand {
-  margin: auto;
   color: var(--black);
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
   text-decoration: none;
-  transition: 0.2s;
 }
 
 .navbar-brand:hover {
   color: var(--grey);
 }
 
+.navbar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-icon {
+  display: none;
+}
+
 .nav-item {
-  margin: auto;
-  padding: .75rem;
+  padding: 0 0.75rem;
 }
 
 .nav-link {
@@ -90,14 +86,47 @@ main {
   color: var(--grey);
 }
 
-.container {
-  display: flex;
+@media (max-width: 1200px) {
+  main {
+    margin: auto;
+    padding: 5rem 15%;
+  }
 }
 
-.align-center {
-  justify-content: center;
-}
+@media (max-width: 800px) {
+  main {
+    margin: auto;
+    padding: 5rem 5%;
+  }
 
-.align-left {
-  justify-content: flex-start;
+  .navbar {
+    justify-content: space-between;
+  }
+
+  .nav-icon {
+    display: block;
+    transform: rotate(90deg);
+    margin-right: 1rem;
+  }
+
+  .nav-item {
+    display: none;
+  }
+
+  .navbar-header {
+    flex-grow: 1;
+  }
+
+  .dropped {
+    flex-direction: column;
+  }
+
+  .dropped li.nav-item {
+    display: block;
+    padding-top: 1rem;
+  }
+
+  .dropped li.nav-item:last-child {
+    padding-bottom: 1rem;
+  }
 }
