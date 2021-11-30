@@ -1,4 +1,4 @@
 tmp
- *.key
- *.crt
- main
+*.key
+*.crt
+main
