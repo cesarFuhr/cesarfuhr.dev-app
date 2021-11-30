@@ -25,14 +25,13 @@ main {
 .navbar {
   background: var(--light-grey);
   margin: 0;
-  padding-inline-start: 0;
+  padding: 0 25%;
 
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 
-  list-style: none; 
-  transition: 0.2s;
+  list-style: none;
 }
 
 .navbar-brand {
@@ -48,6 +47,7 @@ main {
 }
 
 .navbar-header {
+  flex-grow: 1;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -89,18 +89,25 @@ main {
 @media (max-width: 1200px) {
   main {
     margin: auto;
-    padding: 5rem 15%;
+    padding: 3rem 15%;
+  }
+
+  .navbar {
+    padding: 0 15%;
   }
 }
 
 @media (max-width: 800px) {
   main {
     margin: auto;
-    padding: 5rem 5%;
+    padding: 1.5rem 5%;
   }
 
   .navbar {
+    padding: 0;
     justify-content: space-between;
+    align-items: stretch;
+    transition: flex-direction 500ms ease-in-out;
   }
 
   .nav-icon {
@@ -114,16 +121,24 @@ main {
   }
 
   .navbar-header {
+    padding: 0 1%;
+    transition: background-color 0.5s ease;
     flex-grow: 1;
   }
 
   .dropped {
     flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .dropped li.navbar-header {
+    background: var(--yellowish);
   }
 
   .dropped li.nav-item {
     display: block;
     padding-top: 1rem;
+    text-align: center;
   }
 
   .dropped li.nav-item:last-child {
