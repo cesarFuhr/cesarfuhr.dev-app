@@ -114,6 +114,13 @@ main {
     display: block;
     transform: rotate(90deg);
     margin-right: 1rem;
+    color: var(--black);
+    text-decoration: none;
+    transition: 0.2s;
+  }
+
+  .nav-icon:hover {
+    color: var(--grey)
   }
 
   .nav-item {
