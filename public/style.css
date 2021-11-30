@@ -1,0 +1,99 @@
+:root {
+  font-family: Courier New, monospace;
+
+  --almost-white: #FBFBFB;
+  --yellowish: #B8972C;
+  --grey: #899BA9;
+  --light-grey: #DEDCE4;
+  --black: #262730;
+}
+
+body {
+  margin: 0;
+  background: var(--almost-white);
+}
+
+main {
+  margin: auto;
+  padding: 5rem 5%;
+}
+
+@media (min-width: 800px) {
+  main {
+    margin: auto;
+    padding: 5rem 15%;
+  }
+}
+
+@media (min-width: 1200px) {
+  main {
+    margin: auto;
+    padding: 5rem 25%;
+  }
+}
+
+#gopher {
+  height: 5rem;
+}
+
+.navbar {
+  background: var(--light-grey);
+}
+
+.navbar-nav {
+  list-style: none; 
+  margin: auto;
+}
+
+.navbar-brand {
+  margin: auto;
+  color: var(--black);
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.navbar-brand:hover {
+  color: var(--grey);
+}
+
+.nav-item {
+  margin: auto;
+  padding: .75rem;
+}
+
+.nav-link {
+  color: var(--black);
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.nav-link:hover {
+  color: var(--grey);
+}
+
+.text {
+  padding-top: 3rem;
+  text-align: justify;
+}
+
+.text-link {
+  color: var(--yellowish);
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.text-link:hover {
+  color: var(--grey);
+}
+
+.container {
+  display: flex;
+}
+
+.align-center {
+  justify-content: center;
+}
+
+.align-left {
+  justify-content: flex-start;
+}
