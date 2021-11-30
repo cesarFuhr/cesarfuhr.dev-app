@@ -30,10 +30,14 @@ main {
     margin: auto;
     padding: 5rem 25%;
   }
+
+  #gopher {
+    height: 5rem;
+  }
 }
 
 #gopher {
-  height: 5rem;
+  height: 3rem;
 }
 
 .navbar {
