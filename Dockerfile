@@ -16,6 +16,12 @@ COPY public /app/public
 COPY full.crt /app
 COPY priv.key /app
 
+RUN /app/certs
+COPY cesarfuhr.crt /app/certs
+COPY cesarfuhr.key /app/certs
+COPY wildcesarfuhr.crt /app/certs
+COPY wildcesarfuhr.key /app/certs
+
 WORKDIR /app
 
 EXPOSE 443
