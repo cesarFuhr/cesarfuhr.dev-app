@@ -118,10 +118,6 @@ main {
     transform: rotate(90deg);
   }
 
-  .nav-icon:hover {
-    transform: rotate(0deg);
-  }
-
   .nav-item {
     display: none;
   }
@@ -132,9 +128,13 @@ main {
     flex-grow: 1;
   }
 
-  .dropped {
+  ul.dropped {
     flex-direction: column;
     justify-content: flex-start;
+  }
+
+  .dropped a:hover {
+    transform: rotate(0deg);
   }
 
   .dropped li.navbar-header {
