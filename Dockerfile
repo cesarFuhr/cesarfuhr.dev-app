@@ -13,10 +13,8 @@ RUN mkdir /app
 RUN go build -o /app/main
 
 COPY public /app/public
-COPY full.crt /app
-COPY priv.key /app
 
-RUN /app/certs
+RUN  mkdir /app/certs
 COPY cesarfuhr.crt /app/certs
 COPY cesarfuhr.key /app/certs
 COPY wildcesarfuhr.crt /app/certs
