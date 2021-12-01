@@ -133,7 +133,7 @@ main {
     justify-content: flex-start;
   }
 
-  .dropped a:hover {
+  .dropped a {
     transform: rotate(0deg);
   }
 
