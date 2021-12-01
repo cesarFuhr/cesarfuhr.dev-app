@@ -26,11 +26,17 @@ func run() error {
 	port := flag.String("PORT", "8080", "app https port")
 	flag.Parse()
 
+	certs, err := loadCerts()
+	if err != nil {
+		return err
+	}
+
 	server := newHandler(logger)
 	server.Addr = ":" + *port
 	server.TLSConfig = &tls.Config{
 		MinVersion:               tls.VersionTLS12,
 		PreferServerCipherSuites: true,
+		Certificates:             certs,
 	}
 
 	logger.Println("starting service...")
@@ -39,7 +45,7 @@ func run() error {
 	wg.Add(1)
 	go func() {
 		logger.Println("started serving https")
-		if err := server.ListenAndServeTLS("full.crt", "priv.key"); err != nil {
+		if err := server.ListenAndServeTLS("", ""); err != nil {
 			logger.Printf("stoped serving https : %v", err)
 		}
 		wg.Done()
@@ -76,4 +82,20 @@ func newHandler(logger *log.Logger) http.Server {
 	}))
 
 	return http.Server{Handler: mux}
+}
+
+func loadCerts() ([]tls.Certificate, error) {
+	wildcard, err := tls.LoadX509KeyPair("certs/wildcesarfuhr.crt", "certs/wildcesarfuhr.key")
+	if err != nil {
+		return nil, err
+	}
+
+	naked, err := tls.LoadX509KeyPair("certs/cesarfuhr.crt", "certs/cesarfuhr.key")
+	if err != nil {
+		return nil, err
+	}
+
+	certs := append([]tls.Certificate{}, wildcard, naked)
+
+	return certs, nil
 }
