@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"crypto/tls"
+	"embed"
 	"flag"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -68,8 +70,15 @@ func run() error {
 	return nil
 }
 
+//go:embed public/*
+var public embed.FS
+
 func newHandler(logger *log.Logger) http.Server {
-	publicHandler := http.FileServer(http.Dir("./public"))
+	subPublic, err := fs.Sub(public, "public")
+	if err != nil {
+		panic(err)
+	}
+	publicHandler := http.FileServer(http.FS(subPublic))
 
 	mux := http.NewServeMux()
 	mux.Handle("/", http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
@@ -84,13 +93,25 @@ func newHandler(logger *log.Logger) http.Server {
 	return http.Server{Handler: mux}
 }
 
+//go:embed certs/wildcesarfuhr.crt
+var wildCrt []byte
+
+//go:embed certs/wildcesarfuhr.key
+var wildKey []byte
+
+//go:embed certs/cesarfuhr.crt
+var nakedCrt []byte
+
+//go:embed certs/cesarfuhr.key
+var nakedKey []byte
+
 func loadCerts() ([]tls.Certificate, error) {
-	wildcard, err := tls.LoadX509KeyPair("certs/wildcesarfuhr.crt", "certs/wildcesarfuhr.key")
+	wildcard, err := tls.X509KeyPair(wildCrt, wildKey)
 	if err != nil {
 		return nil, err
 	}
 
-	naked, err := tls.LoadX509KeyPair("certs/cesarfuhr.crt", "certs/cesarfuhr.key")
+	naked, err := tls.X509KeyPair(nakedCrt, nakedKey)
 	if err != nil {
 		return nil, err
 	}

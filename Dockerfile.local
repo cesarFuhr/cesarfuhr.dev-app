@@ -8,17 +8,11 @@ COPY go.mod ./
 RUN go mod download
 
 COPY main.go ./
+COPY public ./public
+COPY certs ./certs
 
 RUN mkdir /app
 RUN go build -o /app/main
-
-COPY public /app/public
-
-RUN  mkdir /app/certs
-COPY certs/cesarfuhr.crt /app/certs
-COPY certs/cesarfuhr.key /app/certs
-COPY certs/wildcesarfuhr.crt /app/certs
-COPY certs/wildcesarfuhr.key /app/certs
 
 WORKDIR /app
 
