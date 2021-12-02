@@ -85,6 +85,8 @@ func newHandler(logger *log.Logger) http.Server {
 		logger.Println("incoming request  : ", r.Method, r.URL.Path)
 
 		now := time.Now()
+
+		rw.Header().Add("Cache-Control", "max-age=3600")
 		publicHandler.ServeHTTP(rw, r)
 
 		logger.Println("completed request : ", r.Method, r.URL.Path, time.Since(now))
