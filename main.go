@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -25,7 +26,9 @@ func run() error {
 	logger := log.New(os.Stdout, "APP : ", log.Lmicroseconds|log.Lmsgprefix)
 	ctx := context.Background()
 
-	port := flag.String("PORT", "8080", "app https port")
+	httpPort := flag.String("HTTP_PORT", "8000", "app http port")
+	httpsPort := flag.String("HTTPS_PORT", "8080", "app https port")
+	mainHost := flag.String("MAIN_HOST", "localhost:8080", "app main host")
 	flag.Parse()
 
 	certs, err := loadCerts()
@@ -33,9 +36,9 @@ func run() error {
 		return err
 	}
 
-	server := newHandler(logger)
-	server.Addr = ":" + *port
-	server.TLSConfig = &tls.Config{
+	httpServer := newRedirectServer(logger, *mainHost)
+	httpServer.Addr = ":" + *httpPort
+	httpServer.TLSConfig = &tls.Config{
 		MinVersion:               tls.VersionTLS12,
 		PreferServerCipherSuites: true,
 		Certificates:             certs,
@@ -46,8 +49,25 @@ func run() error {
 
 	wg.Add(1)
 	go func() {
+		logger.Println("started serving http")
+		if err := httpServer.ListenAndServe(); err != nil {
+			logger.Printf("stoped serving http : %v", err)
+		}
+		wg.Done()
+	}()
+
+	httpsServer := newMainServer(logger, *mainHost)
+	httpsServer.Addr = ":" + *httpsPort
+	httpsServer.TLSConfig = &tls.Config{
+		MinVersion:               tls.VersionTLS12,
+		PreferServerCipherSuites: true,
+		Certificates:             certs,
+	}
+
+	wg.Add(1)
+	go func() {
 		logger.Println("started serving https")
-		if err := server.ListenAndServeTLS("", ""); err != nil {
+		if err := httpsServer.ListenAndServeTLS("", ""); err != nil {
 			logger.Printf("stoped serving https : %v", err)
 		}
 		wg.Done()
@@ -63,17 +83,33 @@ func run() error {
 		c, cancel := context.WithTimeout(ctx, time.Second*5)
 		defer cancel()
 
-		server.Shutdown(c)
+		httpServer.Shutdown(c)
+		httpsServer.Shutdown(c)
 	}()
 
 	wg.Wait()
 	return nil
 }
 
+func newRedirectServer(logger *log.Logger, mainHost string) http.Server {
+	mux := http.NewServeMux()
+	mux.Handle("/", http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		logger.Println("incoming request  : ", r.Method, r.URL.Path)
+
+		now := time.Now()
+		defer logger.Println("completed request : ", r.Method, r.URL.Path, time.Since(now))
+
+		rw.Header().Add("Location", "https://"+mainHost+r.URL.RequestURI())
+		rw.WriteHeader(http.StatusMovedPermanently)
+	}))
+
+	return http.Server{Handler: mux}
+}
+
 //go:embed public/*
 var public embed.FS
 
-func newHandler(logger *log.Logger) http.Server {
+func newMainServer(logger *log.Logger, mainHost string) http.Server {
 	subPublic, err := fs.Sub(public, "public")
 	if err != nil {
 		panic(err)
@@ -85,11 +121,16 @@ func newHandler(logger *log.Logger) http.Server {
 		logger.Println("incoming request  : ", r.Method, r.URL.Path)
 
 		now := time.Now()
+		defer logger.Println("completed request : ", r.Method, r.URL.Path, time.Since(now))
+
+		if strings.Contains(r.Host, ".tech") {
+			rw.Header().Add("Location", "https://"+mainHost+r.URL.RequestURI())
+			rw.WriteHeader(http.StatusMovedPermanently)
+			return
+		}
 
 		rw.Header().Add("Cache-Control", "max-age=3600")
 		publicHandler.ServeHTTP(rw, r)
-
-		logger.Println("completed request : ", r.Method, r.URL.Path, time.Since(now))
 	}))
 
 	return http.Server{Handler: mux}

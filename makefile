@@ -8,6 +8,7 @@ docker-run: docker-build
 	docker run \
 		--name cesarfuhr.dev-local \
 		-p 8080:8080 \
+		-p 8000:8000 \
 		cesarfuhr.dev/local:latest 
 
 docker-build:

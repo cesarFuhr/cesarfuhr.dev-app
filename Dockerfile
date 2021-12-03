@@ -20,4 +20,4 @@ WORKDIR /app
 
 EXPOSE 443
 
-CMD [ "/app/main", "-PORT=443" ]
+CMD [ "/app/main", "-HTTPS_PORT=443", "-HTTP_PORT=80", "-MAIN_HOST=cesarfuhr.dev" ]
