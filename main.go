@@ -148,6 +148,12 @@ var nakedCrt []byte
 //go:embed certs/cesarfuhr.key
 var nakedKey []byte
 
+//go:embed certs/cesarfuhr.tech.crt
+var techCrt []byte
+
+//go:embed certs/cesarfuhr.tech.key
+var techKey []byte
+
 func loadCerts() ([]tls.Certificate, error) {
 	wildcard, err := tls.X509KeyPair(wildCrt, wildKey)
 	if err != nil {
@@ -159,7 +165,12 @@ func loadCerts() ([]tls.Certificate, error) {
 		return nil, err
 	}
 
-	certs := append([]tls.Certificate{}, wildcard, naked)
+	tech, err := tls.X509KeyPair(techCrt, techKey)
+	if err != nil {
+		return nil, err
+	}
+
+	certs := append([]tls.Certificate{}, wildcard, naked, tech)
 
 	return certs, nil
 }
