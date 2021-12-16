@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="prism.css" />
 
     <title>cesarFuhr.dev</title>
     <link rel="icon" href="images/cesar_gopher.ico">
@@ -14,7 +15,9 @@
       <ul class="navbar" id="navbar">
         <li class="navbar-header">
           <div class="navbar-brand">
-            <img src="images/cesar_gopher.png" id="gopher"/>
+            <a class="nav-link" href="/">
+              <img src="images/cesar_gopher.png" id="gopher"/>
+            </a>
             <a class="nav-link" href="/">cesarfuhr.dev</a>
           </div>
           <a class="nav-icon" href="javascript:void(0)" onclick="dropMenu()">||</a>
@@ -25,16 +28,57 @@
         <li class="nav-item">
           <a class="nav-link" href="about.html">About</a>
         </li>
-        <li hidden class="nav-item">
+        <!--- <li class="nav-item">
           <a class="nav-link" href="cesarfuhr.rss">RSS</a>
-        </li>
+          </li> --->
       </ul>
     </nav>
 
     <main>
-      <h1>Soon...</h1>
+      <h1>How hard could it be to code a simple HTTPS server with Go?</h1>
+      <h4 class="subtitle">The short answer: actually pretty easy...</h4>
+
+      <section class="text">
+
+        <p>In the last weeks I've being thinking about this little project that I'm working on, which is my own personal blog. I read about having a portfolio page and it seemed like a good idea, but, since I mainly work with backend, it could be quite challenging finding a way to showcase my work without exposing sensitive information of the projects I'm part of.</p>
+        <p>So, here I am, instead of going with an established media service, like Medium or LinkedIn, I decided to build my own website and, hopefully, turn it in a interesting resource to the devs out there. I know, I know this first paragraphs are not about HTTPS or TLS, or even Go, but I felt like, since this is my first post, I could talk a little about my motivations.</p>
+        <p>I really dig into the simplicity mindset behind all things Go, still, when I started my personal blog project, I thought: "this could be a nice opportunity to test my docker skills". And there I was, thinking about nginx and docker-compose...but...</p>
+        <p>I am a Go developer after all, so how hard could it be to build it myself?</p>
+        <p>Turns out its not hard at all...</p>
+
+        <h2>The long answer</h2>
+
+        <p>Every time I stop to think about it, impressed by how much can be done with Go standard library. It gives you many clean and extensible API's that can carry you a long way before you need to reach out for third party libraries and a HTTPS server is not a exception.</p>
+        <p>If you ever coded any simple HTTP server in Go you are only a few lines away from the HTTPS implementation. Since I'm not aiming to talk about how HTTPS guts work, I'll defer that to other articles, like <a href="https://en.wikipedia.org/wiki/HTTPS">this</a> (from Wikipedia itself) and <a href="https://eli.thegreenplace.net/2021/go-https-servers-with-tls/">this</a> (written by <a href="https://github.com/eliben"> Eli Bendersky</a>). It can be done as simple as this...</p>
+
+        <pre><code class="language-go">//main.go
+package main
+
+import (
+  "io"
+  "log"
+  "net/http"
+)
+
+const port = "8443"
+
+func main() {
+  http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, "Hello, World!\n")
+  })
+
+  log.Printf("Starting server at port %s", port)
+  // Here you pass as parameters the certificate and key to be used.
+  // The last parameter is a http.Handler, if you pass nil the default
+  // http handler will be used.
+  err := http.ListenAndServeTLS(":"+port, "cert.pem", "key.pem", nil)
+  log.Fatal(err)
+}</code></pre>
+
+      </section>
     </main>
 
-    <script src="js/dropMenu.js" type="text/javascript"></script>
+    <script src="js/dropMenu.js"  type="text/javascript"></script>
+    <script src="js/prism.js"     type="text/javascript"></script>
   </body>
 </html>
