@@ -98,6 +98,10 @@ main {
   color: var(--dark-grey);
 }
 
+.date {
+  color: var(--dark-grey);
+}
+
 @media (max-width: 1400px) {
   main {
     margin: auto;

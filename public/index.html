@@ -23,7 +23,7 @@
           <a class="nav-icon" href="javascript:void(0)" onclick="dropMenu()">||</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="blog.html">Blog</a>
+          <a class="nav-link" href="archive.html">Archive</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="about.html">About</a>
@@ -35,8 +35,12 @@
     </nav>
 
     <main>
-      <h1>How hard could it be to code a simple HTTPS server with Go?</h1>
-      <h4 class="subtitle">The short answer: actually pretty easy...</h4>
+
+      <header>
+        <p class="date">December 16th, 2021</p>
+        <h1>How hard could it be to code a simple HTTPS server with Go?</h1>
+        <h4 class="subtitle">The short answer: actually pretty easy...</h4>
+      </header>
 
       <section class="text">
 
@@ -49,7 +53,7 @@
         <h2>The long answer</h2>
 
         <p>Every time I stop to think about it, impressed by how much can be done with Go standard library. It gives you many clean and extensible API's that can carry you a long way before you need to reach out for third party libraries and a HTTPS server is not a exception.</p>
-        <p>If you ever coded any simple HTTP server in Go you are only a few lines away from the HTTPS implementation. Since I'm not aiming to talk about how HTTPS guts work, I'll defer that to other articles, like <a href="https://en.wikipedia.org/wiki/HTTPS">this</a> (from Wikipedia itself) and <a href="https://eli.thegreenplace.net/2021/go-https-servers-with-tls/">this</a> (written by <a href="https://github.com/eliben"> Eli Bendersky</a>). It can be done as simple as this...</p>
+        <p>If you ever coded any simple HTTP server in Go you are only a few lines away from the HTTPS implementation. Since I'm not aiming to talk about how HTTPS guts work, I'll defer that to other articles, like <a href="https://en.wikipedia.org/wiki/HTTPS">this</a> (from Wikipedia itself) and <a href="https://eli.thegreenplace.net/2021/go-https-servers-with-tls/">this</a> (written by <a href="https://github.com/eliben"> Eli Bendersky</a>). You can check that out if want to know more about HTTPS, but, in Go, the simplest form is as simple as a handler function definition and a function call.</p>
 
         <pre><code class="language-go">//main.go
 package main
@@ -74,6 +78,20 @@ func main() {
   err := http.ListenAndServeTLS(":"+port, "cert.pem", "key.pem", nil)
   log.Fatal(err)
 }</code></pre>
+
+        <p>You may be asking yourself if this is capable of serving production or if it fits only a simple test server. Well, that's the beauty of Go's standard library, the solutions are really robust. I've ran a little test using <a href="https://github.com/tsenart/vegeta">Vegeta</a>, my machine is not exactly a beefy one, but the result were no joke.</p>
+
+        <pre><code class="language-go">Requests      [total, rate, throughput]         150000, 5000.03, 5000.01
+Duration      [total, attack, wait]             30s, 30s, 121.729µs
+Latencies     [min, mean, 50, 90, 95, 99, max]  67.644µs, 137.152µs, 108.307µs, 123.25µs, 129.877µs, 280.893µs, 37.418ms
+Bytes In      [total, mean]                     2100000, 14.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:150000
+Error Set:</code></pre>
+
+        <p>This is all great, but what if you wanted to serve two different domains with the same Go program? </p>
+        <p>Not a problem, Go supports multiple certificates. It is not only supported, but the standard library implementation will select the correct certificate for the requested URL. This is how I implemented the "wildcard" and the "naked" domains in my server (that is serving you this blog post right now...).</p>
 
       </section>
     </main>
