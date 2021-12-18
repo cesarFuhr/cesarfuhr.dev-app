@@ -1,8 +1,12 @@
-run:
-	go run main.go	
-
 build:
 	env CGO_ENABLED=0 go build -o main
+
+run:
+	staticcheck .
+	go run main.go	
+
+watch:
+	find . | entr -r make run
 
 docker-run: docker-build
 	docker run \

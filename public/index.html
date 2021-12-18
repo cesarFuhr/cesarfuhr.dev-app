@@ -79,7 +79,7 @@ func main() {
   log.Fatal(err)
 }</code></pre>
 
-        <p>You may be asking yourself if this is capable of serving production or if it fits only a simple test server. Well, that's the beauty of Go's standard library, the solutions are really robust. I've ran a little test using <a href="https://github.com/tsenart/vegeta">Vegeta</a>, my machine is not exactly a beefy one, but the result were no joke.</p>
+        <p>You may be asking yourself if this is capable of serving production or if it fits only a simple test server. Well, that's the beauty of Go's standard library, the solutions are really robust. I've ran a little test using <a href="https://github.com/tsenart/vegeta">Vegeta</a>, my machine is not exactly a beefy one, but the results were no joke.</p>
 
         <pre><code class="language-go">Requests      [total, rate, throughput]         150000, 5000.03, 5000.01
 Duration      [total, attack, wait]             30s, 30s, 121.729µs
@@ -91,7 +91,57 @@ Status Codes  [code:count]                      200:150000
 Error Set:</code></pre>
 
         <p>This is all great, but what if you wanted to serve two different domains with the same Go program? </p>
-        <p>Not a problem, Go supports multiple certificates. It is not only supported, but the standard library implementation will select the correct certificate for the requested URL. This is how I implemented the "wildcard" and the "naked" domains in my server (that is serving you this blog post right now...).</p>
+        <p>Not a problem, Go standard library supports multiple certificates. It is not only supported, but the standard library implementation will select the correct certificate for the requested URL. This is how I implemented the "wildcard" and the "naked" domains in my server (that is serving you this blog post right now...).</p>
+
+        <pre><code class="language-go">//main.go
+package main
+
+import (
+	"crypto/tls"
+	"fmt"
+	"log"
+	"net/http"
+)
+
+const port = "8443"
+
+func main() {
+	var mux http.ServeMux
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, "Hello, World!\n")
+	})
+
+	var certs []tls.Certificate
+
+	cert, err := tls.LoadX509KeyPair("first.crt.pem", "first.key.pem")
+	if err != nil {
+		log.Fatal(err)
+	}
+	certs = append(certs, cert)
+
+	cert, err = tls.LoadX509KeyPair("second.crt.pem", "second.key.pem")
+	if err != nil {
+		log.Fatal(err)
+	}
+	certs = append(certs, cert)
+
+	tlsConfig := &tls.Config{
+		MinVersion:               tls.VersionTLS12,
+		PreferServerCipherSuites: true,
+		Certificates:             certs,
+	}
+
+	server := http.Server{
+		Addr:      ":" + port,
+		Handler:   &mux,
+		TLSConfig: tlsConfig,
+	}
+
+	log.Printf("Starting server at port %s", port)
+	err = server.ListenAndServeTLS("", "")
+	log.Fatal(err)
+}
+</code></pre>
 
       </section>
     </main>
