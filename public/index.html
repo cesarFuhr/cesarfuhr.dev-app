@@ -166,8 +166,8 @@ func main() {
           <h3><span class="highlight">Bonus:</span> All in one binary</h3>
         </a>
         <p>If you miss the days where deploying an application was simply to copy some files to the server, this next section is for you.</p>
-        <p>Since <a href="https://go.dev/doc/go1.16">1.16</a> Go has a feature that I'm in love with: Embed. Long story short, embed gives you the possibility of including static files on the final binary. This means that instead of copying a bunch of files around you could embed the files in the binary and have a single file to copy to run your program (in our https server you should be careful with this file since it has you private key inside it).</p>
-        <p>Embed is such a simple and effective tool that I'm not only using for my certificates, but also for the actual public files of this website. It is a way of having a web server without it having access to the file system, which is a nice security feature to have. As I said before, really enjoy using it. Here is a simple code snippet of how to do it in our little server experiment.</p>
+        <p>Since <a href="https://go.dev/doc/go1.16">1.16</a> Go has a feature that I'm in love with: Embed. Long story short, embed gives you the possibility of including static files on the final binary. This means that, instead of copying a bunch of files around, you could embed the files in the binary and have a single file to copy to your server in order to run your program (in our https server you should be careful with this file since it has you private key inside it).</p>
+        <p>Embed is such a simple and effective tool that I'm not only using for my certificates, but also for the actual public files of this website. It is a way of having a web server without it having access to the file system, which is a nice security feature. As I said before, really enjoy using it. Here is a simple code snippet of how to do it in our little server experiment.</p>
 
         <pre><code class="language-go">//main.go
 package main
