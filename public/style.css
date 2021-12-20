@@ -22,7 +22,6 @@ main {
 }
 
 footer {
-  margin-top: auto;
   display: flex;
   justify-content: flex-end;
 }
@@ -114,6 +113,20 @@ footer a {
 
 .text-link:hover {
   color: var(--grey);
+}
+
+.archive ol {
+  list-style: disc;
+}
+
+.archive a {
+  color: var(--black);
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.archive a:hover {
+  color: var(--dark-grey);
 }
 
 .subtitle {
