@@ -1,5 +1,7 @@
 :root {
   font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+  
+  --max-width: 1000px;
 
   --almost-white: #FBFBFB;
   --yellowish: #B8972C;
@@ -18,7 +20,8 @@ body {
 
 main {
   margin: auto;
-  padding: 5rem 25%;
+  padding: 5rem 0;
+  max-width: var(--max-width);
 }
 
 footer {
@@ -38,10 +41,24 @@ footer a {
   height: 3rem;
 }
 
+.navbar-pading {
+  padding: 0 auto;
+}
+
+.navbar-wrapper {
+  background: var(--light-grey);
+
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
+
 .navbar {
   background: var(--light-grey);
   margin: 0;
-  padding: 0 25%;
+  padding: 0;
+  max-width: var(--max-width);
+  flex-grow: 1;
 
   display: flex;
   justify-content: flex-start;
@@ -52,7 +69,8 @@ footer a {
 
 .navbar-brand {
   color: var(--black);
-  padding: 0 1rem;
+  margin: 0;
+  padding: 0;
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -109,6 +127,21 @@ footer a {
   transition: 0.2s;
 }
 
+.text ul {
+  margin: 2rem 0;
+}
+
+.text li {
+  margin: 0.5rem 0;
+}
+
+.text img {
+  display: block;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
 .text .highlight {
   color: var(--grey);
 }
@@ -119,6 +152,10 @@ footer a {
 
 .archive ol {
   list-style: disc;
+}
+
+.archive li {
+  margin: 1rem 0;
 }
 
 .archive a {

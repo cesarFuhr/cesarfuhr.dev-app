@@ -12,7 +12,7 @@
 
   <body>
     <a id="top"></a>
-    <nav>
+    <nav class="navbar-wrapper">
       <ul class="navbar" id="navbar">
         <li class="navbar-header">
           <div class="navbar-brand">
@@ -41,12 +41,30 @@
         <a id="title"></a>
         <p class="date">January 7th, 2022</p>
         <h1>Simple rules to avoid some "for range" pitfalls</h1>
-        <h4 class="subtitle">Memory efficiency of the Go for range syntax</h4>
+        <h4 class="subtitle">Memory efficiency of the Go for range syntax and its implications.</h4>
       </header>
 
       <section class="text">
 
         <p>Memory efficiency is something worth aiming for. In the "pay what you use era" it can be a critical factor in the bill.</p>
+        <p>With that in mind, the engineers behind Go's development designed a simple, yet efficient, way to iterate over arrays, slices, maps, strings and channels. Each data structure has its own implementation and the iteration over its values is slightly different.</p>
+        <ul>
+          <li>Maps have a randomized access, you should not rely on its order.</li>
+          <li>Strings actually iterate over unicode points, sometimes this means multiple bytes.</li>
+          <li>Slices and arrays are the simplest, iteration over the values preserving their order.</li>
+          <li>Ranging over channels blocks until it is closed.</li>
+        </ul>
+
+        <p>But how this relates with memory efficiency?</p>
+
+        <p>Well, think about it, where these values that you are accessing are being stored?</p>
+
+        <a id="dissecting-for-range" href="#dissecting-for-range">
+          <h2>Dissecting "for range"</h2>
+        </a>
+
+        <img src="/images/range_dissect.png" id="range-dissect"/>
+
 
       </section>
       <footer>
