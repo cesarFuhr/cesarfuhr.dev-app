@@ -92,7 +92,7 @@ func main() {
           <h3>Range and closures</h3>
         </a>
 
-        <p>Closures are a way of injecting state in a function. This is achieved by sharing the outer scope variable reference with the inner function scope (you can read more about them <a href="https://gobyexample.com/closures">here</a>). </p>
+        <p>Closures are a way of injecting state into a function. This is achieved by sharing the outer scope variable reference with the inner function scope (you can read more about them <a href="https://gobyexample.com/closures">here</a>). </p>
         <p>Applying to our range for loops case, the memory location of the variables inside the function scope are actually the same used by the loop to iterate over the values. If the function is not executed inside the same iteration it is defined, by the time it executes the value of the variables it received through closure will not be the same as when it was defined.</p>
 
         <pre><code class="language-go">//main.go
@@ -145,7 +145,7 @@ func main() {
 // index: 2, value: 30</code></pre>
 
         <p>The same behavior can happen when the variables are passed by reference to a go routine started inside the loop (for example, in a fanout pattern), since they will probably outlive the loop iteration scope, and have access to the variables after the iteration is done.</p>
-        <p>If you want to have access to each iteration value inside a scope that outlives the loop, there are two simple techniques you can do: declare a new variable inside the loop (forcing it to use a different memory location to each iteration) or, even simpler, pass the arguments by value.
+        <p>If you want to have access to each iteration value inside a scope that outlives the loop, there are two simple techniques you can use: declare a new variable inside the loop (forcing it to use a different memory location to each iteration) or, even simpler, pass the arguments by value.
 
         <pre><code class="language-go">//main.go
 package main
