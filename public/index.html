@@ -263,7 +263,7 @@ type TokenRequester interface {
 // max and refill period rate.
 func limit(ctx context.Context, tokenRequester TokenRequester, action actionFunc) func(context.Context) (string, error) {
   return func(c context.Context) (string, error) {
-    // Using closure, captures the TokenRequestere to have access to 
+    // Using closure to capture the TokenRequester to have access to 
     // the RequestToken method.
     if err := tokenRequester.RequestToken(c); err != nil {
       return "", err
