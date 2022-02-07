@@ -249,9 +249,10 @@ END</code></pre>
 
         <pre><code class="language-go">
 type TokenRequester interface {
-  // RequestToken requests a token from the
-  // bucket with the given ID.
-  RequestToken(ctx context.Context, bucketID string) error
+  // RequestToken requests a token from the bucket.
+  // This interface assumes that the implementation knows
+  // from which bucket it should make the token request.
+  RequestToken(ctx context.Context) error
 }</code></pre>
         
         <p>The new <span class="highlight">limit</span> function is really simple, because all the refilling and token requisition logic was extracted and is abstracted by the interface.</p>

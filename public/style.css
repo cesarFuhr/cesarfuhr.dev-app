@@ -5,6 +5,7 @@
 
   --almost-white: #FBFBFB;
   --yellowish: #B8972C;
+  --blue: #07a;
   --grey: #899BA9;
   --lighter-grey: #F1F0F4;
   --light-grey: #DEDCE4;
@@ -143,7 +144,7 @@ footer a {
 }
 
 .text .highlight {
-  color: var(--dark-grey);
+  color: var(--blue);
 }
 
 .text-link:hover {
