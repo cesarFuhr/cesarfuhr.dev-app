@@ -251,7 +251,7 @@ END</code></pre>
 type TokenRequester interface {
   // RequestToken requests a token from the bucket.
   // This interface assumes that the implementation knows
-  // from which bucket it should make the token request.
+  // to which bucket it should make the token request.
   RequestToken(ctx context.Context) error
 }</code></pre>
         
