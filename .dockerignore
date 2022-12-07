@@ -1,0 +1,6 @@
+# flyctl launch added from .gitignore
+**/tmp
+**/*.key
+**/*.crt
+**/main
+**/certs/*

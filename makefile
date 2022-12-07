@@ -11,7 +11,7 @@ watch:
 docker-run: docker-build
 	docker run \
 		--name cesarfuhr.dev \
-		-p 8000:80 \
+		-p 8080:8080 \
 		cesarfuhr.dev:latest 
 
 docker-build:

@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.16-alpine AS builder
+FROM golang:alpine AS builder
 
 WORKDIR /build
 
@@ -17,6 +17,4 @@ FROM scratch AS runner
 WORKDIR /runner
 COPY --from=builder /build/server /runner/server
 
-EXPOSE 80
-
-CMD [ "/runner/server", "-HTTP_PORT=80"]
+CMD [ "/runner/server", "-HTTP_PORT=8080"]

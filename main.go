@@ -24,7 +24,7 @@ func run() error {
 	logger := log.New(os.Stdout, "APP : ", log.Lmicroseconds|log.Lmsgprefix)
 	ctx := context.Background()
 
-	httpPort := flag.String("HTTP_PORT", "8000", "app http port")
+	httpPort := flag.String("HTTP_PORT", "8080", "app http port")
 	flag.Parse()
 
 	var wg sync.WaitGroup
