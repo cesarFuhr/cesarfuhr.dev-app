@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.16-alpine
+FROM golang:1.16-alpine AS builder
 
 WORKDIR /build
 
@@ -9,15 +9,14 @@ RUN go mod download
 
 COPY main.go ./
 COPY public ./public
-COPY certs ./certs
 
-RUN mkdir /app
-RUN go build -o /app/main
+RUN CGO_ENABLED=0 go build -o /build/server
 
-COPY public /app/public
+FROM scratch AS runner
 
-WORKDIR /app
+WORKDIR /runner
+COPY --from=builder /build/server /runner/server
 
-EXPOSE 443
+EXPOSE 80
 
-CMD [ "/app/main", "-HTTPS_PORT=443", "-HTTP_PORT=80", "-MAIN_HOST=cesarfuhr.dev" ]
+CMD [ "/runner/server", "-HTTP_PORT=80"]
