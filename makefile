@@ -1,14 +1,13 @@
 build: 
-	staticcheck .
-	CGO_ENABLED=0 go build -o main
+	staticcheck ./cmd/...
+	go generate ./...
+	CGO_ENABLED=0 go build -o main ./cmd/app/
 
-run: build 
+run: build
 	./main
 	
-checks:
-
 watch:
-	find . | entr -r make run
+	find content cmd/app/main.go cmd/app/public/images cmd/app/public/js cmd/app/public/style-md.css  cmd/gen/main.go | entr -r make run
 
 docker-run: docker-build
 	docker run \
