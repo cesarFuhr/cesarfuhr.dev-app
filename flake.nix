@@ -14,7 +14,7 @@
             [
               p.flyctl
               p.go
-              p.gotools
+              p.go-tools
               p.gopls
               p.gnumake
             ];

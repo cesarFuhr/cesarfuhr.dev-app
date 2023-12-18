@@ -1,9 +1,11 @@
-build:
+build: 
+	staticcheck .
 	CGO_ENABLED=0 go build -o main
 
-run:
-	staticcheck .
-	go run main.go	
+run: build 
+	./main
+	
+checks:
 
 watch:
 	find . | entr -r make run
