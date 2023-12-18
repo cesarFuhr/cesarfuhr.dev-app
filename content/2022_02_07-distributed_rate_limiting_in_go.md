@@ -1,7 +1,7 @@
 ##### February 7th, 2022
 
 # Distributed rate limiting in Go
-#### The token bucket pattern implementation with a single source of truth
+#### The token bucket pattern implementation with a single source of truth.
 
 In the distributed system era some problems get a whole new perspective. One of these common problems is the denial of service by excessive calls. We always think about how this can affect our systems, but what if we were the bad actors?
 

@@ -17,40 +17,85 @@ import (
 	_ "embed"
 )
 
+const sourceFolder = "../../content/"
+const destFolder = "../app/public/md/"
+
 func main() {
-	sourceFolder := "../../content/"
-	sourceFileName := "2022_02_07-distributed_rate_limiting_in_go.md"
-	destFolder := "../app/public/md/"
-
-	sourceBytes, err := os.ReadFile(sourceFolder + sourceFileName)
+	dirEntries, err := os.ReadDir(sourceFolder)
 	if err != nil {
 		panic(err)
 	}
 
-	dateString, titleString, found := strings.Cut(sourceFileName, "-")
-	if !found {
-		panic("wrong file format")
+	type page struct {
+		Title string
+		Date  time.Time
+
+		Source string
+		Dest   string
+
+		Prev string
+		Next string
 	}
 
-	date, err := time.Parse("2006_01_02", dateString)
-	if err != nil {
-		panic(err)
+	var pages []page
+	for _, entry := range dirEntries {
+		if entry.IsDir() {
+			// why? why? a directory here?
+			panic("we shouldn't have dir in source folder")
+		}
+
+		var prev string
+		if len(pages) != 0 {
+			prev = pages[len(pages)-1].Dest
+		}
+
+		sourceFileName := entry.Name()
+
+		dateString, titleString, found := strings.Cut(sourceFileName, "-")
+		if !found {
+			panic("wrong file format")
+		}
+
+		date, err := time.Parse("2006_01_02", dateString)
+		if err != nil {
+			panic(err)
+		}
+
+		unformatedTitle := strings.TrimSuffix(titleString, ".md")
+		destFileName := unformatedTitle + ".html"
+
+		caser := cases.Title(language.English)
+		title := caser.String(strings.ReplaceAll(unformatedTitle, "_", " "))
+
+		p := page{
+			Source: sourceFileName,
+			Dest:   destFileName,
+			Title:  title,
+			Date:   date,
+			Prev:   prev,
+		}
+		pages = append(pages, p)
 	}
 
-	unformatedTitle := strings.TrimSuffix(titleString, ".md")
-	destFileName := unformatedTitle + ".html"
+	for i, page := range pages {
+		sourceBytes, err := os.ReadFile(sourceFolder + page.Source)
+		if err != nil {
+			panic(err)
+		}
 
-	destFile, err := os.OpenFile(destFolder+destFileName, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
-	if err != nil {
-		panic(err)
+		destFile, err := os.OpenFile(destFolder+page.Dest, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+		if err != nil {
+			panic(err)
+		}
+
+		if i+1 < len(pages) {
+			page.Next = pages[i+1].Dest
+		}
+
+		destFile.Write(header(page.Title, page.Date.Format("2006-01-02"), "/images/token_bucket.svg"))
+		destFile.Write(mdToHTML(sourceBytes))
+		destFile.Write(footer(page.Prev, page.Next))
 	}
-
-	caser := cases.Title(language.English)
-	title := caser.String(strings.ReplaceAll(unformatedTitle, "_", " "))
-
-	destFile.Write(header(title, date.Format("2006-01-02"), "/images/token_bucket.svg"))
-	destFile.Write(mdToHTML(sourceBytes))
-	destFile.Write(footer("simple-rules-to-avoid-some-range-for-loop-pitfalls.html", ""))
 }
 
 func mdToHTML(md []byte) []byte {
@@ -144,11 +189,12 @@ func footer(prev, next string) []byte {
 		Next string
 	}
 
+	// TODO: change this later to blog instead of md
 	if prev != "" {
-		args.Prev = fmt.Sprintf("<a href=\"/blog/%s\">prev</a>", prev)
+		args.Prev = fmt.Sprintf("<a href=\"/md/%s\">prev</a>", prev)
 	}
 	if next != "" {
-		args.Next = fmt.Sprintf("<a href=\"/blog/%s\">next</a>", next)
+		args.Next = fmt.Sprintf("<a href=\"/md/%s\">next</a>", next)
 	}
 
 	err := footerTemplate.Execute(&buf, args)
