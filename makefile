@@ -1,5 +1,5 @@
 build:
-	env CGO_ENABLED=0 go build -o main
+	CGO_ENABLED=0 go build -o main
 
 run:
 	staticcheck .
