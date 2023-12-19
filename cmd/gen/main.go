@@ -18,26 +18,12 @@ import (
 )
 
 const sourceFolder = "../../content/"
-const destFolder = "../app/public/md/"
-
-var caser = cases.Title(language.English)
+const destFolder = "../app/public/"
 
 func main() {
 	dirEntries, err := os.ReadDir(sourceFolder)
 	if err != nil {
 		panic(err)
-	}
-
-	type page struct {
-		Title string
-		Date  time.Time
-		Image string
-
-		Source string
-		Dest   string
-
-		Prev string
-		Next string
 	}
 
 	var pages []page
@@ -82,25 +68,70 @@ func main() {
 		pages = append(pages, p)
 	}
 
+	// Write the blog pages.
 	for i, page := range pages {
 		sourceBytes, err := os.ReadFile(sourceFolder + page.Source)
 		if err != nil {
 			panic(err)
 		}
 
-		destFile, err := os.OpenFile(destFolder+page.Dest, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
-		if err != nil {
-			panic(err)
-		}
+		// Spinning up an inline function to be able to defer.
+		func() {
+			destFile, err := os.OpenFile(destFolder+"blog/"+page.Dest, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+			if err != nil {
+				panic(err)
+			}
+			defer destFile.Close()
 
-		if i+1 < len(pages) {
-			page.Next = pages[i+1].Dest
-		}
+			if i+1 < len(pages) {
+				page.Next = pages[i+1].Dest
+			}
 
-		destFile.Write(header(page.Title, page.Date.Format("2006-01-02"), "/images/token_bucket.svg"))
-		destFile.Write(mdToHTML(sourceBytes))
-		destFile.Write(footer(page.Prev, page.Next))
+			// TODO: fix preview image.
+			destFile.Write(header(page.Title, page.Date.Format("2006-01-02"), "/images/cesar_gopher.png"))
+			destFile.Write(mdToHTML(sourceBytes))
+			destFile.Write(footer(page.Prev, page.Next))
+
+			// If its the most recent page, it should be the index.
+			if len(pages) == i+1 {
+				indexFile, err := os.OpenFile(destFolder+"index.html", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+				if err != nil {
+					panic(err)
+				}
+				defer indexFile.Close()
+
+				// TODO: fix preview image.
+				indexFile.Write(header(page.Title, page.Date.Format("2006-01-02"), "/images/cesar_gopher.png"))
+				indexFile.Write(mdToHTML(sourceBytes))
+				indexFile.Write(footer(page.Prev, page.Next))
+			}
+		}()
 	}
+
+	// Write the archive page.
+	archiveFile, err := os.OpenFile(destFolder+"archive.html", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	if err != nil {
+		panic(err)
+	}
+	defer archiveFile.Close()
+
+	archiveFile.Write(header("Archive", "2021-12-20", "/images/cesar_gopher.png"))
+	archiveFile.Write(archive(pages))
+	archiveFile.Write(footer("", ""))
+}
+
+var caser = cases.Title(language.English)
+
+type page struct {
+	Title string
+	Date  time.Time
+	Image string
+
+	Source string
+	Dest   string
+
+	Prev string
+	Next string
 }
 
 func mdToHTML(md []byte) []byte {
@@ -196,10 +227,10 @@ func footer(prev, next string) []byte {
 
 	// TODO: change this later to blog instead of md
 	if prev != "" {
-		args.Prev = fmt.Sprintf("<a href=\"/md/%s\">prev</a>", prev)
+		args.Prev = fmt.Sprintf("<a href=\"/blog/%s\">prev</a>", prev)
 	}
 	if next != "" {
-		args.Next = fmt.Sprintf("<a href=\"/md/%s\">next</a>", next)
+		args.Next = fmt.Sprintf("<a href=\"/blog/%s\">next</a>", next)
 	}
 
 	err := footerTemplate.Execute(&buf, args)
@@ -221,4 +252,54 @@ const footerText = `<footer>
     <script src="/js/prism.js"     type="text/javascript"></script>
   </body>
 </html>
+`
+
+var archiveTemplate = template.Must(template.New("archive").Parse(archiveText))
+
+func archive(pages []page) []byte {
+	buf.Reset()
+
+	type item struct {
+		Date  string
+		Title string
+		Dest  string
+	}
+
+	args := struct{ Items []item }{Items: make([]item, len(pages))}
+	for i, page := range pages {
+		item := item{
+			Date:  page.Date.Format("2006/01/02"),
+			Title: page.Title,
+			Dest:  "/blog/" + page.Dest,
+		}
+		args.Items[len(pages)-1-i] = item
+	}
+
+	err := archiveTemplate.Execute(&buf, args)
+	if err != nil {
+		panic(err)
+	}
+
+	return buf.Bytes()
+}
+
+const archiveText = `
+      <header>
+        <h1>Archive</h1>
+      </header>
+
+      <section class="archive">
+        <ol class="archive-list">
+          {{range $index, $element := .Items}}
+          <li>
+            <span class="date">
+              {{$element.Date}} - 
+            </span>
+            <a href="{{$element.Dest}}">
+              {{$element.Title}}
+            </a>
+          </li>
+          {{end}}
+        </ol>
+      </section>
 `

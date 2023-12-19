@@ -167,10 +167,15 @@ main p strong {
 
 .archive ol {
   list-style: disc;
+  line-height: 1;
 }
 
 .archive li {
   margin: 1rem 0;
+}
+
+.archive .date {
+  color: var(--dark-grey)
 }
 
 .archive a {

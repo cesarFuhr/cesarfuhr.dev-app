@@ -3,4 +3,6 @@ tmp
 *.crt
 main
 certs/*
-cmd/app/public/md
+cmd/app/public/blog
+cmd/app/public/archive.html
+cmd/app/public/index.html
