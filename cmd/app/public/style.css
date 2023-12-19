@@ -106,44 +106,58 @@ footer a {
   color: var(--grey);
 }
 
-.text {
-  padding: 3rem 0;
+main {
   text-align: justify;
   line-height: 1.5;
 }
 
-.text h2 {
+main h4 {
+  padding: 0 0 3rem  
+}
+
+main h2 {
   margin: 3rem 0;
   color: var(--black);
 }
 
-.text h3 {
+main h3 {
   margin: 3rem 0 2rem 0;
   color: var(--black);
 }
 
-.text a {
+main h4 {
+  color: var(--dark-grey);
+}
+
+main h5 {
+  color: var(--dark-grey);
+  margin: 0 0 0 0;
+  font-weight: normal;
+  font-size: 1rem;
+}
+
+main a {
   color: var(--yellowish);
   text-decoration: none;
   transition: 0.2s;
 }
 
-.text ul {
+main ul {
   margin: 2rem 0;
 }
 
-.text li {
+main li {
   margin: 0.5rem 0;
 }
 
-.text img {
+main img {
   display: block;
   width: 100%;
   max-width: 900px;
   margin: 3rem auto;
 }
 
-.text .highlight {
+main p strong {
   color: var(--blue);
 }
 
@@ -153,10 +167,15 @@ footer a {
 
 .archive ol {
   list-style: disc;
+  line-height: 1;
 }
 
 .archive li {
   margin: 1rem 0;
+}
+
+.archive .date {
+  color: var(--dark-grey)
 }
 
 .archive a {
@@ -166,14 +185,6 @@ footer a {
 }
 
 .archive a:hover {
-  color: var(--dark-grey);
-}
-
-.subtitle {
-  color: var(--dark-grey);
-}
-
-.date {
   color: var(--dark-grey);
 }
 
@@ -242,3 +253,4 @@ footer a {
     padding-bottom: 1rem;
   }
 }
+

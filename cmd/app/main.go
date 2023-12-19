@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+//go:generate go run ../gen/main.go
+
 func main() {
 	if err := run(); err != nil {
 		log.Fatalf("app has run into an fatal error %v", err)
@@ -73,7 +75,9 @@ func newMainServer(logger *log.Logger) *http.Server {
 		logger.Println("incoming request  : ", r.Method, r.URL.Path)
 
 		now := time.Now()
-		defer logger.Println("completed request : ", r.Method, r.URL.Path, time.Since(now))
+		defer func() {
+			logger.Println("completed request : ", r.Method, r.URL.Path, time.Since(now))
+		}()
 
 		rw.Header().Add("Cache-Control", "max-age=3600")
 		publicHandler.ServeHTTP(rw, r)

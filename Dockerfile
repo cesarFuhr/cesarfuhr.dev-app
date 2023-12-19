@@ -7,8 +7,8 @@ WORKDIR /build
 COPY go.mod ./
 RUN go mod download
 
-COPY main.go ./
-COPY public ./public
+COPY cmd/app/main.go ./
+COPY cmd/app/public ./public
 
 RUN CGO_ENABLED=0 go build -o /build/server
 
