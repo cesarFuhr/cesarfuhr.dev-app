@@ -194,13 +194,13 @@ BEGIN
 END
 ```
 
-When the <span class="highlight">request_token</span> procedure is called, it checks if the bucket can be refilled and only then takes a token. Since a bucket is only refilled when there is a token requisition, you can't just query the available tokens to check if you could make a call to the limited resource and you avoid making useless queries to update unused buckets.
+When the **request_token** Since a bucket is only refilled when there is a token requisition, you can't just query the available tokens to check if you could make a call to the limited resource and you avoid making useless queries to update unused buckets.
 
 ## The distributed implementation
 
 ![Token Bucket Central](/images/token_bucket_central.svg)
 
-The centralized token bucket repository is a shared state that is accessed by the service replicas. To integrate that in the example we should isolate the parts where this state is accessed and mutated. To decouple the token requisition from the call authorization we can use a <span class="highlight">TokenRequester</span> interface.
+The centralized token bucket repository is a shared state that is accessed by the service replicas. To integrate that in the example we should isolate the parts where this state is accessed and mutated. To decouple the token requisition from the call authorization we can use a **TokenRequester** interface.
 
 ```go
 type TokenRequester interface {
@@ -211,7 +211,7 @@ type TokenRequester interface {
 }
 ```
 
-The new <span class="highlight">limit</span> function is really simple, because all the refilling and token requisition logic was extracted and is abstracted by the interface.
+The new **limit** function is really simple, because all the refilling and token requisition logic was extracted and is abstracted by the interface.
 
 
 ```go
@@ -230,7 +230,7 @@ func limit(ctx context.Context, tokenRequester TokenRequester, action actionFunc
 }
 ```
 
-To code a <span class="highlight">TokenRequester</span> implementation we can leverage the standard library SQL package to access the database. Since the token buckets are shared by the service replicas, they should be inserted in the tables before running the rate limiting logic.
+To code a **TokenRequester** implementation we can leverage the standard library SQL package to access the database. Since the token buckets are shared by the service replicas, they should be inserted in the tables before running the rate limiting logic.
 
 ```go
 // SQLTokenRequester implements the TokenRequester interface

@@ -142,11 +142,11 @@ main a {
   transition: 0.2s;
 }
 
-.text ul {
+main ul {
   margin: 2rem 0;
 }
 
-.text li {
+main li {
   margin: 0.5rem 0;
 }
 
@@ -157,7 +157,7 @@ main img {
   margin: 3rem auto;
 }
 
-main .highlight {
+main p strong {
   color: var(--blue);
 }
 

@@ -20,6 +20,8 @@ import (
 const sourceFolder = "../../content/"
 const destFolder = "../app/public/md/"
 
+var caser = cases.Title(language.English)
+
 func main() {
 	dirEntries, err := os.ReadDir(sourceFolder)
 	if err != nil {
@@ -29,6 +31,7 @@ func main() {
 	type page struct {
 		Title string
 		Date  time.Time
+		Image string
 
 		Source string
 		Dest   string
@@ -45,6 +48,7 @@ func main() {
 		}
 
 		var prev string
+		// If its not the first page, it has a previous.
 		if len(pages) != 0 {
 			prev = pages[len(pages)-1].Dest
 		}
@@ -64,7 +68,6 @@ func main() {
 		unformatedTitle := strings.TrimSuffix(titleString, ".md")
 		destFileName := unformatedTitle + ".html"
 
-		caser := cases.Title(language.English)
 		title := caser.String(strings.ReplaceAll(unformatedTitle, "_", " "))
 
 		p := page{
@@ -73,6 +76,8 @@ func main() {
 			Title:  title,
 			Date:   date,
 			Prev:   prev,
+			// Leaving Next to the next step
+			// doing it here will be too complex.
 		}
 		pages = append(pages, p)
 	}
