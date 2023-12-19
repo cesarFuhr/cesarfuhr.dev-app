@@ -16,6 +16,7 @@ docker-run: docker-build
 		cesarfuhr.dev:latest 
 
 docker-build:
+	make build
 	docker build \
 		-f Dockerfile \
 		--tag cesarfuhr.dev \
