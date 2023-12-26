@@ -7,7 +7,7 @@ run: build
 	./main
 	
 watch:
-	find content cmd/app/main.go cmd/app/public/images cmd/app/public/js cmd/app/public/style-md.css  cmd/gen/main.go | entr -r make run
+	find content cmd/app/main.go cmd/app/public/images cmd/app/public/js cmd/app/public/style-md.css cmd/gen/main.go | entr -r make run
 
 docker-run: docker-build
 	docker run \
