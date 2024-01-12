@@ -1,0 +1,26 @@
+:root {
+  font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+  
+  --max-width: 1000px;
+
+  --almost-white: #FBFBFB;
+  --yellowish: #B8972C;
+  --blue: #07a;
+  --grey: #899BA9;
+  --light-grey: #DEDCE4;
+  --dark-grey: #5A6770;
+  --black: #262730;
+
+  --fg: var(--black);
+  --fg-secondary: var(--dark-grey);
+  --bg-primary: var(--almost-white);
+  --bg-secondary: var(--light-grey);
+  --bg-terciary: var(--yellowish);
+  --links: var(--yellowish);
+  --highlight: var(--blue);
+  --hover: var(--grey);
+
+  --bg-code: var(--bg-secondary);
+  --fg-functions: var(--yellowish);
+}
+

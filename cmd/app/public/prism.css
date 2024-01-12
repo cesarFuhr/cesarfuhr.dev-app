@@ -2,7 +2,7 @@
 https://prismjs.com/download.html#themes=prism&languages=clike+go */
 code[class*="language-"],
 pre[class*="language-"] {
-    color: #000;
+    color: var(--fg);
     background: 0 0;
     text-shadow: 0 0px #fff;
     font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
@@ -48,7 +48,7 @@ pre[class*="language-"] {
 }
 :not(pre) > code[class*="language-"],
 pre[class*="language-"] {
-    background: var(--lighter-grey);
+    background: var(--bg-secondary);
 }
 :not(pre) > code[class*="language-"] {
     padding: 0.1em;

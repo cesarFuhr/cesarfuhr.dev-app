@@ -1,22 +1,7 @@
-:root {
-  font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
-  
-  --max-width: 1000px;
-
-  --almost-white: #FBFBFB;
-  --yellowish: #B8972C;
-  --blue: #07a;
-  --grey: #899BA9;
-  --lighter-grey: #F1F0F4;
-  --light-grey: #DEDCE4;
-  --dark-grey: #5A6770;
-  --black: #262730;
-}
-
 body {
   margin: 0;
-  background: var(--almost-white);
-  color: var(--black);
+  background: var(--bg-primary);
+  color: var(--fg);
 }
 
 main {
@@ -33,7 +18,7 @@ footer {
 
 footer a {
   margin: 0 1rem;
-  color: var(--yellowish);
+  color: var(--footer-fg);
   text-decoration: none;
   transition: 0.2s;
 }
@@ -47,7 +32,7 @@ footer a {
 }
 
 .navbar-wrapper {
-  background: var(--light-grey);
+  background: var(--bg-secondary);
 
   display: flex;
   justify-content: center;
@@ -55,7 +40,7 @@ footer a {
 }
 
 .navbar {
-  background: var(--light-grey);
+  background: var(--bg-secondary);
   margin: 0;
   padding: 0;
   max-width: var(--max-width);
@@ -69,7 +54,7 @@ footer a {
 }
 
 .navbar-brand {
-  color: var(--black);
+  color: var(--fg);
   margin: 0;
   padding: 0;
   display: flex;
@@ -78,7 +63,7 @@ footer a {
 }
 
 .navbar-brand:hover {
-  color: var(--grey);
+  color: var(--hover);
 }
 
 .navbar-header {
@@ -97,13 +82,13 @@ footer a {
 }
 
 .nav-link {
-  color: var(--black);
+  color: var(--fg);
   text-decoration: none;
   transition: 0.2s;
 }
 
 .nav-link:hover {
-  color: var(--grey);
+  color: var(--hover);
 }
 
 main {
@@ -117,27 +102,27 @@ main h4 {
 
 main h2 {
   margin: 3rem 0;
-  color: var(--black);
+  color: var(--fg);
 }
 
 main h3 {
   margin: 3rem 0 2rem 0;
-  color: var(--black);
+  color: var(--fg);
 }
 
 main h4 {
-  color: var(--dark-grey);
+  color: var(--fg-secondary);
 }
 
 main h5 {
-  color: var(--dark-grey);
+  color: var(--fg-secondary);
   margin: 0 0 0 0;
   font-weight: normal;
   font-size: 1rem;
 }
 
 main a {
-  color: var(--yellowish);
+  color: var(--links);
   text-decoration: none;
   transition: 0.2s;
 }
@@ -158,11 +143,11 @@ main img {
 }
 
 main p strong {
-  color: var(--blue);
+  color: var(--highlight);
 }
 
 .text-link:hover {
-  color: var(--grey);
+  color: var(--hover);
 }
 
 .archive ol {
@@ -175,17 +160,17 @@ main p strong {
 }
 
 .archive .date {
-  color: var(--dark-grey)
+  color: var(--fg-secondary)
 }
 
 .archive a {
-  color: var(--black);
+  color: var(--fg);
   text-decoration: none;
   transition: 0.2s;
 }
 
 .archive a:hover {
-  color: var(--dark-grey);
+  color: var(--hover);
 }
 
 @media (max-width: 1400px) {
@@ -214,7 +199,7 @@ main p strong {
   .nav-icon {
     display: block;
     margin-right: 1rem;
-    color: var(--black);
+    color: var(--fg);
     text-decoration: none;
     transition: 0.4s;
     transform: rotate(90deg);
@@ -240,7 +225,7 @@ main p strong {
   }
 
   .dropped li.navbar-header {
-    background: var(--yellowish);
+    background: var(--bg-terciary);
   }
 
   .dropped li.nav-item {
