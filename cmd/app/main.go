@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -71,7 +72,13 @@ func newMainServer(logger *log.Logger) *http.Server {
 	publicHandler := http.FileServer(http.FS(subPublic))
 
 	mux := http.NewServeMux()
-	mux.Handle("/", http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+	mux.Handle("/", loggerMiddleware(logger, themeMiddleware(publicHandler)))
+
+	return &http.Server{Handler: mux}
+}
+
+func loggerMiddleware(logger *log.Logger, h http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		logger.Println("incoming request  : ", r.Method, r.URL.Path)
 
 		now := time.Now()
@@ -80,8 +87,26 @@ func newMainServer(logger *log.Logger) *http.Server {
 		}()
 
 		rw.Header().Add("Cache-Control", "max-age=3600")
-		publicHandler.ServeHTTP(rw, r)
-	}))
+		h.ServeHTTP(rw, r)
+	})
+}
 
-	return &http.Server{Handler: mux}
+func themeMiddleware(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		const themeSuffix = "theme.css"
+		if !strings.HasSuffix(r.URL.Path, themeSuffix) {
+			h.ServeHTTP(rw, r)
+			return
+		}
+
+		pathPrefix := strings.TrimSuffix(r.URL.Path, themeSuffix)
+		switch r.URL.Query().Get("theme") {
+		case "light":
+			r.URL.Path = pathPrefix + "light.css"
+		default:
+			r.URL.Path = pathPrefix + "dark.css"
+		}
+
+		h.ServeHTTP(rw, r)
+	})
 }
