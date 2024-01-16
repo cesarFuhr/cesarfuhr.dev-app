@@ -53,7 +53,7 @@ footer a {
 }
 
 .nav-theme>label {
-  margin: 0.3rem 0 0 0;
+  margin: auto;
   height: 1.2rem;
   width: 1.2rem;
   background-color: var(--bg);
