@@ -47,7 +47,7 @@ func main() {
 
 	aboutFile.Write(aboutPage.build())
 
-	var pages []page
+	var blogPosts []page
 	for _, entry := range dirEntries {
 		if entry.IsDir() {
 			// why? why? a directory here?
@@ -60,8 +60,8 @@ func main() {
 
 		var prev string
 		// If its not the first page, it has a previous.
-		if len(pages) != 0 {
-			prev = pages[len(pages)-1].Dest
+		if len(blogPosts) != 0 {
+			prev = blogPosts[len(blogPosts)-1].Dest
 		}
 
 		sourceFileName := entry.Name()
@@ -81,47 +81,48 @@ func main() {
 
 		title := caser.String(strings.ReplaceAll(unformatedTitle, "_", " "))
 
-		p := page{
-			Source: sourceFileName,
-			Dest:   destFileName,
-			Title:  title,
-			Date:   date,
-			Prev:   prev,
+		blogPost := page{
+			Source:  sourceFileName,
+			Dest:    destFileName,
+			Title:   title,
+			Date:    date,
+			Prev:    prev,
+			HasCode: true,
 			// Leaving Next to the next step
 			// doing it here will be too complex.
 		}
-		pages = append(pages, p)
+		blogPosts = append(blogPosts, blogPost)
 	}
 
 	// Write the blog pages.
-	for i, page := range pages {
-		sourceBytes, err := os.ReadFile(sourceFolder + page.Source)
+	for i, blogPost := range blogPosts {
+		sourceBytes, err := os.ReadFile(sourceFolder + blogPost.Source)
 		if err != nil {
 			panic(err)
 		}
 
 		// TODO: fix preview image.
-		page.Image = "/images/cesar_gopher.png"
-		page.Content = mdToHTML(sourceBytes)
+		blogPost.Image = "/images/cesar_gopher.png"
+		blogPost.Content = mdToHTML(sourceBytes)
 
 		// Spinning up an inline function to be able to defer.
 		func() {
-			destFile, err := os.OpenFile(destFolder+"blog/"+page.Dest, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+			destFile, err := os.OpenFile(destFolder+"blog/"+blogPost.Dest, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 			if err != nil {
 				panic(err)
 			}
 			defer destFile.Close()
 
-			if i+1 < len(pages) {
-				page.Next = pages[i+1].Dest
+			if i+1 < len(blogPosts) {
+				blogPost.Next = blogPosts[i+1].Dest
 			}
 
-			pageBytes := page.build()
+			pageBytes := blogPost.build()
 			// TODO: fix preview image.
 			destFile.Write(pageBytes)
 
 			// If its the most recent page, it should be the index.
-			if len(pages) == i+1 {
+			if len(blogPosts) == i+1 {
 				indexFile, err := os.OpenFile(destFolder+"index.html", os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
 				if err != nil {
 					panic(err)
@@ -145,7 +146,7 @@ func main() {
 		Title:   "Archive",
 		Date:    time.Date(2021, 12, 20, 0, 0, 0, 0, time.UTC),
 		Image:   "/images/cesar_gopher.png",
-		Content: archive(pages),
+		Content: archive(blogPosts),
 	}
 	archiveFile.Write(archivePage.build())
 }
@@ -157,6 +158,7 @@ type page struct {
 	Date    time.Time
 	Image   string
 	Content []byte
+	HasCode bool
 
 	Source string
 	Dest   string
@@ -196,11 +198,13 @@ func (p page) build() []byte {
 		Content string
 		Prev    string
 		Next    string
+		HasCode bool
 	}{
 		Title:   p.Title,
 		Date:    p.Date.Format("2006-01-02"),
 		Image:   p.Image,
 		Content: string(p.Content),
+		HasCode: p.HasCode,
 	}
 
 	if p.Prev != "" {
