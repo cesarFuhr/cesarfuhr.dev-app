@@ -1,0 +1,20 @@
+<header>
+  <h1>Archive</h1>
+</header>
+
+<section class="archive">
+  <ol class="archive-list">
+
+    {{range $index, $element := .Items}}
+    <li>
+      <span class="date">
+        {{$element.Date}} - 
+      </span>
+      <a href="{{$element.Dest}}">
+        {{$element.Title}}
+      </a>
+    </li>
+    {{end}}
+
+  </ol>
+</section>
