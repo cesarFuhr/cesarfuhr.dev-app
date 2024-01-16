@@ -1,7 +1,13 @@
+.theme-wrap {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+
+  transition: background-color 0.5s ease;
+}
+
 body {
   margin: 0;
-  background: var(--bg-primary);
-  color: var(--fg);
 }
 
 main {
@@ -25,6 +31,27 @@ footer a {
 
 #gopher {
   height: 3rem;
+}
+
+.theme-box {
+  position: absolute;
+  top: .56rem;
+  right: .56rem;
+  opacity: .001;
+}
+
+.nav-theme>label {
+  margin: 0.3rem 0 0 0;
+  height: 1.2rem;
+  width: 1.2rem;
+  background-color: var(--bg);
+  border-radius: 50%;
+  display: inline-block;
+  transition: background-color 0.5s ease;
+}
+
+.nav-theme>label:hover {
+  background-color: var(--fg);
 }
 
 .navbar-pading {
@@ -91,6 +118,7 @@ footer a {
   color: var(--hover);
 }
 
+
 main {
   text-align: justify;
   line-height: 1.5;
@@ -117,7 +145,7 @@ main h4 {
 main h5 {
   color: var(--fg-secondary);
   margin: 0 0 0 0;
-  font-weight: normal;
+  font-wermal;
   font-size: 1rem;
 }
 

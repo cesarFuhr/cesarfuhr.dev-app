@@ -1,0 +1,16 @@
+:root {
+  --fg: var(--almost-white);
+  --fg-secondary: var(--grey);
+  --bg: var(--black);
+  --bg-secondary: var(--darker-grey);
+  --bg-terciary: var(--yellowish);
+  --links: var(--yellowish);
+  --highlight: var(--blue);
+  --hover: var(--grey);
+
+  --bg-code: var(--even-darker-grey);
+  --fg-functions: var(--yellowish);
+  --fg-keyword: var(--light-blue);
+  --fg-constants: var(--light-red);
+}
+

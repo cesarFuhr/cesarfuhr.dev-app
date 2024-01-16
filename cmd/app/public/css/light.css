@@ -1,7 +1,7 @@
 :root {
   --fg: var(--black);
   --fg-secondary: var(--dark-grey);
-  --bg-primary: var(--almost-white);
+  --bg: var(--almost-white);
   --bg-secondary: var(--light-grey);
   --bg-terciary: var(--yellowish);
   --links: var(--yellowish);
@@ -10,5 +10,8 @@
 
   --bg-code: var(--lighter-grey);
   --fg-functions: var(--yellowish);
+  --fg-keyword: var(--blue);
+  --fg-constants: var(--red);
+  --fg-builtin: var(--light-green);
 }
 

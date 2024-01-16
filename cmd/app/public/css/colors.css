@@ -5,10 +5,19 @@
 
   --almost-white: #FBFBFB;
   --yellowish: #B8972C;
+  --green: #690;
+  --light-green: #88cc00;
   --blue: #07a;
+  --light-blue: #029adb;
+  --red: #905;
+  --light-red: #f00285;
   --grey: #899BA9;
   --light-grey: #DEDCE4;
   --lighter-grey: #F1F0F4;
+  --darker-grey: #414b52;
+  --even-darker-grey: #30383d;
   --dark-grey: #5A6770;
   --black: #262730;
 }
+
+
