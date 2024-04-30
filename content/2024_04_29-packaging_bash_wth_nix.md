@@ -17,6 +17,8 @@ I wanted my app to be:
 
 But wait a second, isn't this blog post about a couple of simple bash scripts? Yes it is!
 
+##### __Note:__ If you want to skip the article and just see the code, check it out [here](https://github.com/cesarFuhr/notes-script).
+
 ## The fabulous "app"
 
 Lets review the list of requirements:
@@ -88,7 +90,7 @@ fi
 
 # Move to the subject folder.
 pushd ~/.notes/$SUBJECT > /dev/null && \
-  rg --pretty '\[ \]' . && \ # Scan with rg.
+  rg --pretty '\[ \]' . && \ # Scan with `rg`.
   popd > /dev/null # Move back to the callers directory.
 ```
 
@@ -103,13 +105,56 @@ fi
 
 # Move to the subject folder.
 pushd ~/.notes/$SUBJECT > /dev/null && \
-  rg --pretty '\[x\]' . && \
+  rg --pretty '\[x\]' . && \ # Scan for completed checkboxes.
   popd > /dev/null # Move back to the callers directory.
 ```
 
 And that's it! That is all I needed... But I really wanted to integrate this seamlessly with OS and package it in a way I could bundle all the dependencies with it.
 
 ## Nix for the rescue
+
+I am using NixOS as my daily driver for more than two years now, but never had packaged anything but dev shells with it yet. This was a great opportunity to exercise my Nix brain cells and also dive a little deeper into a functional language.
+
+Nix is a functional declarative language developed to tackle the software building problem (its also a package manager and build tool). Although I am used to run and manage my NixOS configuration and some development shells, actually packaging a piece of software was a new thing to me. Being the kind of person I am, I imposed two extra restrictions on myself: 
+
+- Only use pure nix and the Nix [builtins](https://nixos.org/manual/nix/stable/language/builtins.html), don't rely on any external packages.
+- Use the flake experimental (but pretty much stable) feature.
+
+Let's start by building the binaries, which is a our smallest scope, then increase the scope to arrive at the final Nix package. To do that we need to define a function to create the individual package.
+
+```nix
+pack = ({ packageName, buildInputs }:
+  let
+    p = import nixpkgs { system = system; };
+
+    script = (p.writeScriptBin packageName (builtins.readFile ./${packageName}.sh))
+        .overrideAttrs (old: { buildCommand = "${old.buildCommand}\n patchShebangs $out"; });
+  in
+  p.symlinkJoin {
+    name = packageName;
+    paths = [ script ] ++ buildInputs;
+    buildInputs = [ p.makeWrapper ];
+    postBuild = "wrapProgram $out/bin/${packageName} --prefix PATH : $out/bin";
+  });
+```
+
+This little snippet of code will create a Nix package based on a `packageName` and the packages `buildInputs`. It also has an indirect dependency with `nixpkgs`, which by itself is dependant on the `system` variable, but lets not focus on that right now. The following two lines are what is actually building the script into an executable, linking and wrapping the bash script into an executable in the nix store `bin` directory. All the `p.{function_name}` calls are nix packages available (something like a standard library, you can check their docs [here](https://nixos.org/manual/nixpkgs/stable/)) through `nixpkgs`.
+
+```nix
+    script = (p.writeScriptBin packageName (builtins.readFile ./${packageName}.sh))
+        .overrideAttrs (old: { buildCommand = "${old.buildCommand}\n patchShebangs $out"; });
+```
+
+Then, since we are packaging such a simple application, what we need to do is just package it. `p.symlinkJoin` will gather all the build inputs (the script dependencies) and the script itself and create a single folder with all the links.
+
+```nix
+  p.symlinkJoin {
+    name = packageName;
+    paths = [ script ] ++ buildInputs;
+    buildInputs = [ p.makeWrapper ];
+    postBuild = "wrapProgram $out/bin/${packageName} --prefix PATH : $out/bin";
+  });
+```
 
 ```nix
 {
@@ -132,8 +177,8 @@ And that's it! That is all I needed... But I really wanted to integrate this sea
 
               pack = ({ packageName, buildInputs }:
                 let
-                  script = (p.writeScriptBin packageName (builtins.readFile ./${packageName}.sh)).overrideAttrs (old: {
-                    buildCommand = "${old.buildCommand}\n patchShebangs $out";
+                  script = (p.writeScriptBin packageName (builtins.readFile ./${packageName}.sh))
+                    .overrideAttrs (old: { buildCommand = "${old.buildCommand}\n patchShebangs $out";
                   });
                 in
                 p.symlinkJoin {
