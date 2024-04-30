@@ -161,6 +161,12 @@ main h5 {
   font-size: 1rem;
 }
 
+main blockquote {
+  color: var(--fg-secondary);
+  border-left: 0.15rem solid var(--highlight);
+  padding: 0 0 0 1rem;
+}
+
 main a {
   color: var(--links);
   text-decoration: none;
@@ -173,6 +179,18 @@ main ul {
 
 main li {
   margin: 0.5rem 0;
+  list-style: none;
+}
+
+main li::before {
+  padding: 0 1rem 0 0;
+  content: "•";
+  color: var(--highlight)
+}
+
+main code {
+  color: var(--highlight);
+  font-size: 1rem;
 }
 
 main img {
