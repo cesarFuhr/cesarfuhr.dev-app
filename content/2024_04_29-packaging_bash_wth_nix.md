@@ -145,16 +145,13 @@ This little snippet of code will create a Nix package based on a `packageName` a
         .overrideAttrs (old: { buildCommand = "${old.buildCommand}\n patchShebangs $out"; });
 ```
 
-Then, since we are packaging such a simple application, what we need to do is just package it. `p.symlinkJoin` will gather all the build inputs (the script dependencies) and the script itself and create a single folder with all the links.
+Then, since we are building such a simple application, what we need to do is just package it. `p.symlinkJoin` will gather all the build inputs (the script dependencies) and the script itself and create a single folder with all the links. Then we use `wrapProgram` function to make sure the app will be available in your PATH after installation.
 
-```nix
-  p.symlinkJoin {
-    name = packageName;
-    paths = [ script ] ++ buildInputs;
-    buildInputs = [ p.makeWrapper ];
-    postBuild = "wrapProgram $out/bin/${packageName} --prefix PATH : $out/bin";
-  });
-```
+With the packaging function defined we can build the system specific copy of our notes app and inject them in the final derivation. Nix expects the result of the evaluation to be an [attribute set](https://nixos.org/manual/nix/stable/language/values#attribute-set), where for every supported [system](https://nixos.org/manual/nix/stable/language/derivations#attr-system) there should be a [derivation](https://nixos.org/manual/nix/stable/language/derivations) of the app. This is where the `builtins` come in handy, they help us with mapping the data into different formats to achieve the needed result spec.
+
+`builtins.map` receives a mapping function and a [list](https://nixos.org/manual/nix/stable/language/values#list) and applies that function to every element, returning the resulting list of transformed elements. `builtins.listToAttrs` on the other hand receives a list of attribute sets with `name` and `value` attributes and reduces them into an attribute set, where the keys will be the `name`s and the values will the `value`s of the list elements.
+
+The first thing we do, is define the list of systems we will support. Then we define the output attribute set with a single attribute `packages`. Each key in the `packages` set should be a system and its value an set of built packages.
 
 ```nix
 {
@@ -175,18 +172,7 @@ Then, since we are packaging such a simple application, what we need to do is ju
             let
               p = import nixpkgs { system = system; };
 
-              pack = ({ packageName, buildInputs }:
-                let
-                  script = (p.writeScriptBin packageName (builtins.readFile ./${packageName}.sh))
-                    .overrideAttrs (old: { buildCommand = "${old.buildCommand}\n patchShebangs $out";
-                  });
-                in
-                p.symlinkJoin {
-                  name = packageName;
-                  paths = [ script ] ++ buildInputs;
-                  buildInputs = [ p.makeWrapper ];
-                  postBuild = "wrapProgram $out/bin/${packageName} --prefix PATH : $out/bin";
-                });
+              pack = ({ packageName, buildInputs }: /* We covered this function already. */ });
             in
             {
               name = system;
