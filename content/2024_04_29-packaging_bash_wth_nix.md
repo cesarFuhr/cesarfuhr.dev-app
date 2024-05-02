@@ -149,10 +149,6 @@ Then, since we are building such a simple application, what we need to do is jus
 
 With the packaging function defined we can build the system specific copy of our notes app and inject them in the final derivation. Nix expects the result of the evaluation to be an [attribute set](https://nixos.org/manual/nix/stable/language/values#attribute-set), where for every supported [system](https://nixos.org/manual/nix/stable/language/derivations#attr-system) there should be a [derivation](https://nixos.org/manual/nix/stable/language/derivations) of the app. This is where the `builtins` come in handy, they help us with mapping the data into different formats to achieve the needed result spec.
 
-`builtins.map` receives a mapping function and a [list](https://nixos.org/manual/nix/stable/language/values#list) and applies that function to every element, returning the resulting list of transformed elements. `builtins.listToAttrs` on the other hand receives a list of attribute sets with `name` and `value` attributes and reduces them into an attribute set, where the keys will be the `name`s and the values will the `value`s of the list elements.
-
-The first thing we do, is define the list of systems we will support. Then we define the output attribute set with a single attribute `packages`. Each key in the `packages` set should be a system and its value an set of built packages.
-
 ```nix
 {
   description = "A very basic note taking script";
@@ -187,3 +183,103 @@ The first thing we do, is define the list of systems we will support. Then we de
     };
 }
 ```
+
+The first thing we do, is define the list of systems we will support. We will map this list into the final distribution, making the app available to these systems.
+
+```nix
+let
+  systems = [
+    "x86_64-linux"
+    "aarch64-linux"
+    "x86_64-darwin"
+    "aarch64-darwin"
+  ];
+in
+```
+
+Now we need to declare the building process of the app, which will expose three commands `notes`, `todo` and `todo-done`. This is done by the `builtins.map` function, that receives a mapping function and a [list](https://nixos.org/manual/nix/stable/language/values#list) and applies that function to every element, returning the resulting list of transformed elements. 
+
+```nix
+(builtins.map
+  (system:
+    let
+      p = import nixpkgs { system = system; };
+
+      pack = ({ packageName, buildInputs }: /* We covered this function already. */ });
+    in
+    {
+      name = system;
+      value = rec {
+        default = notes;
+        notes = pack { packageName = "notes"; buildInputs = [ p.coreutils ]; };
+        todo = pack { packageName = "todo"; buildInputs = [ p.coreutils p.ripgrep ]; };
+        todo-done = pack { packageName = "todo-done"; buildInputs = [ p.coreutils p.ripgrep ]; };
+      };
+    })
+```
+
+Each element inside the list returned by the `builtins.map` function is a set with the following form:
+
+```nix
+{
+    name = "system-name";
+    value = {
+        default = notes;
+        notes = notes_package;
+        todo = todo_package;
+        todo-done = todo-done_package;
+    };
+}
+```
+
+We need such arrangement to feed it into `builtins.listToAttrs`, which receives a list of attribute sets with `name` and `value` attributes and reduces them into an attribute set, where the keys will be the `name`s and the values will the `value`s of the list elements. The end result will be an set such as this:
+
+```nix
+{
+    "system-0" = {
+        default = notes;
+        notes = notes_package;
+        todo = todo_package;
+        todo-done = todo-done_package;
+    };
+#       .   
+#       .   
+#       .   
+    "system-N" = {
+        default = notes;
+        notes = notes_package;
+        todo = todo_package;
+        todo-done = todo-done_package;
+    };
+}
+```
+
+Then we define this attribute set as the single attribute `packages`, that is the only attribute of the final resulting set. Executing `nix flake show` we will get the following output for a `x86_64-linux` machine:
+
+```shell
+$ nix flake show
+git+file:///path/to/project/notes?ref=refs/heads/main&rev=fcf77dbb83cd3c22cac6a1358365d234ed20627d
+└───packages
+    ├───aarch64-darwin
+    │   ├───default omitted (use '--all-systems' to show)
+    │   ├───notes omitted (use '--all-systems' to show)
+    │   ├───todo omitted (use '--all-systems' to show)
+    │   └───todo-done omitted (use '--all-systems' to show)
+    ├───aarch64-linux
+    │   ├───default omitted (use '--all-systems' to show)
+    │   ├───notes omitted (use '--all-systems' to show)
+    │   ├───todo omitted (use '--all-systems' to show)
+    │   └───todo-done omitted (use '--all-systems' to show)
+    ├───x86_64-darwin
+    │   ├───default omitted (use '--all-systems' to show)
+    │   ├───notes omitted (use '--all-systems' to show)
+    │   ├───todo omitted (use '--all-systems' to show)
+    │   └───todo-done omitted (use '--all-systems' to show)
+    └───x86_64-linux
+        ├───default: package 'notes'
+        ├───notes: package 'notes'
+        ├───todo: package 'todo'
+        └───todo-done: package 'todo-done'
+```
+
+Now we can run the app running `nix run .#notes` or any of the other binaries built in this derivation.
