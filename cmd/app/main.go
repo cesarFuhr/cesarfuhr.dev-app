@@ -31,12 +31,12 @@ func run() error {
 
 	var wg sync.WaitGroup
 
-	httpServer := newMainServer(logger)
+	httpServer := newServer(logger)
 	httpServer.Addr = ":" + *httpPort
 
 	wg.Add(1)
 	go func() {
-		logger.Println("started serving http")
+		logger.Println("started serving https")
 		if err := httpServer.ListenAndServe(); err != nil {
 			logger.Printf("stoped serving https : %v", err)
 		}
@@ -63,12 +63,12 @@ func run() error {
 //go:embed public/*
 var public embed.FS
 
-func newMainServer(logger *log.Logger) *http.Server {
+func newServer(logger *log.Logger) *http.Server {
 	subPublic, err := fs.Sub(public, "public")
 	if err != nil {
 		panic(err)
 	}
-	publicHandler := http.FileServer(http.FS(subPublic))
+	publicHandler := http.FileServerFS(subPublic)
 
 	mux := http.NewServeMux()
 	mux.Handle("/", loggerMiddleware(logger, publicHandler))
