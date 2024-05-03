@@ -1,5 +1,5 @@
 
-##### April 29th, 2024
+##### May 3rd, 2024
 
 # Packaging bash with Nix
 #### Packaging some simple note taking scripts with Nix shouldn't be so hard right? right?
