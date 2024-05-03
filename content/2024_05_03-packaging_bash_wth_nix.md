@@ -254,9 +254,9 @@ We need such arrangement to feed it into `builtins.listToAttrs`, which receives 
 }
 ```
 
-Then we define this attribute set as the single attribute `packages`, that is the only attribute of the final resulting set. Executing `nix flake show` we will get the following output for a `x86_64-linux` machine:
+Then we define this attribute set as the `packages` attribute value in the final set. Executing `nix flake show` we will get the following output for a `x86_64-linux` machine:
 
-```shell
+```bash
 $ nix flake show
 git+file:///path/to/project/notes?ref=refs/heads/main&rev=fcf77dbb83cd3c22cac6a1358365d234ed20627d
 └───packages
@@ -282,4 +282,10 @@ git+file:///path/to/project/notes?ref=refs/heads/main&rev=fcf77dbb83cd3c22cac6a1
         └───todo-done: package 'todo-done'
 ```
 
-Now we can run the app running `nix run .#notes` or any of the other binaries built in this derivation.
+Now we can run the app running `nix run .#notes` or any of the other binaries built in this derivation with all its dependencies bundled with it.
+
+## Conclusions
+
+I use this notes app everyday, it serves me well, but I know I have a lot of opinions built into it. NeoVim, local files and bash, these are all choices that are aligned with a movement towards using linux tools I am into now. Building the "app" was pretty fun, only needed a few iterations and already landed on a pretty usable thing. Nix on the other hand was not easy to grasp, especially with the restrictions I made to the project. Documentation is not easily discoverable, `nix` as a build tool doesn't have good error messages and `nix` language being functional and declarative were some interesting challenges to me.
+
+In the end I think it was worth it, now I can easily integrate it with my [NixOS configuration](https://github.com/cesarFuhr/cesarOS) and have it always baked in my system. As a next step in my Nix journey I would like to package a Go application with it, having all its dependencies versioned with Nix and a ready to use development shell.
