@@ -36,9 +36,9 @@ func run() error {
 
 	wg.Add(1)
 	go func() {
-		logger.Println("started serving https")
+		logger.Println("started serving http")
 		if err := httpServer.ListenAndServe(); err != nil {
-			logger.Printf("stoped serving https : %v", err)
+			logger.Printf("stoped serving http : %v", err)
 		}
 		wg.Done()
 	}()
