@@ -62,10 +62,6 @@
 
                 CGO_ENABLED = 0;
 
-                nativeBuildInputs = [
-                  p.go-tools
-                ];
-
                 preBuild = ''
                   make pre
                 '';
