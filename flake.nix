@@ -14,30 +14,34 @@
         "aarch64-darwin"
       ];
 
-      buildShell = (system: {
-        default =
-          let
-            p = import nixpkgs { system = system; };
-          in
-          p.mkShell {
-            buildInputs = [
-              p.flyctl
-              p.go
-              p.go-tools
-              p.gopls
-              p.gnumake
-            ];
-          };
-      });
-    in
-    {
-      devShells = builtins.listToAttrs
-        (builtins.map
+      systemsToAttrs = (callback: elements: builtins.listToAttrs (
+        builtins.map
           (system:
             {
               name = system;
-              value = buildShell system;
+              value = callback system;
             })
-          systems);
+          elements
+      )
+      );
+    in
+    {
+      devShells = systemsToAttrs
+        (system: {
+          default =
+            let
+              p = import nixpkgs { system = system; };
+            in
+            p.mkShell {
+              buildInputs = [
+                p.flyctl
+                p.go
+                p.go-tools
+                p.gopls
+                p.gnumake
+              ];
+            };
+        })
+        systems;
     };
 }
