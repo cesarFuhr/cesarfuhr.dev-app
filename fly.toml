@@ -12,6 +12,7 @@ processes = []
   auto_rollback = true
 
 [[build]]
+  image = "blog:latest"
 
 [[services]]
   http_checks = []
