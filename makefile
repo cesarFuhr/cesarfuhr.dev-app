@@ -1,11 +1,15 @@
-app: 
-	go generate ./...
-	staticcheck ./cmd/...
+app: check pre
 	CGO_ENABLED=0 go build -o main ./cmd/app/
 
 run: build
 	./main
-	
+
+pre:
+	go generate ./...
+
+check:
+	staticcheck ./cmd/...
+
 watch:
 	find 	content \
 				cmd/app/main.go \

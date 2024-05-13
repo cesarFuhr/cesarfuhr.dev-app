@@ -1,6 +1,7 @@
 tmp
 main
-cmd/app/public/blog
+cmd/app/public/blog/*
+!cmd/app/public/blog/.gitkeep
 cmd/app/public/archive.html
 cmd/app/public/index.html
 cmd/app/public/about.html

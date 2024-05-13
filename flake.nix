@@ -50,13 +50,24 @@
           let
             p = import nixpkgs { system = system; };
           in
-          {
-            default = p.buildGoModule
+          rec {
+            default = app;
+            app = p.buildGoModule
               {
                 name = "app";
                 vendorHash = "sha256-K6hdGsOjCJLx1nH69MHoTzV9tD05Gz4LdGGccCL1TOk=";
                 src = ./.;
+                subPackages = [ "cmd/app" ];
+
                 CGO_ENABLED = 0;
+
+                nativeBuildInputs = [
+                  p.go-tools
+                ];
+
+                preBuild = ''
+                  make pre
+                '';
               };
           })
         systems;
