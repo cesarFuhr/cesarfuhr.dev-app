@@ -33,3 +33,11 @@ docker-clean:
 	docker stop cesarfuhr.dev
 	docker rm cesarfuhr.dev
 	docker rmi blog
+
+fly-push:
+	fly auth docker
+	docker tag blog:latest registry.fly.io/cesarfuhr-dev:latest
+	docker push registry.fly.io/cesarfuhr-dev:latest
+
+deploy: docker-build fly-push
+	fly deploy

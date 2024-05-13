@@ -11,8 +11,8 @@ processes = []
   allowed_public_ports = []
   auto_rollback = true
 
-[[build]]
-  image = "blog:latest"
+[build]
+image = "registry.fly.io/cesarfuhr-dev:latest"
 
 [[services]]
   http_checks = []
