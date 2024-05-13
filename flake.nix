@@ -49,15 +49,16 @@
         (system:
           let
             p = import nixpkgs { system = system; };
+            name = "blog";
           in
           rec {
-            default = app;
-            app = p.buildGoModule
+            default = blog;
+            blog = p.buildGoModule
               {
-                name = "app";
+                name = name;
                 vendorHash = "sha256-K6hdGsOjCJLx1nH69MHoTzV9tD05Gz4LdGGccCL1TOk=";
                 src = ./.;
-                subPackages = [ "cmd/app" ];
+                subPackages = [ "cmd/blog" ];
 
                 CGO_ENABLED = 0;
 
@@ -69,6 +70,13 @@
                   make pre
                 '';
               };
+
+            docker = p.dockerTools.buildImage {
+              name = name;
+              config = {
+                Cmd = [ "${p.hello}/bin/${name}" ];
+              };
+            };
           })
         systems;
     };

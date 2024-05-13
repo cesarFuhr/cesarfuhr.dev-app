@@ -17,7 +17,7 @@ import (
 )
 
 const sourceFolder = "../../content/"
-const destFolder = "../app/public/"
+const destFolder = "../blog/public/"
 
 func main() {
 	dirEntries, err := os.ReadDir(sourceFolder)

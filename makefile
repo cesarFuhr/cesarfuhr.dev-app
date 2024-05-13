@@ -1,5 +1,5 @@
-app: check pre
-	CGO_ENABLED=0 go build -o main ./cmd/app/
+blog: check pre
+	CGO_ENABLED=0 go build -o main ./cmd/blog/
 
 run: build
 	./main
@@ -12,10 +12,10 @@ check:
 
 watch:
 	find 	content \
-				cmd/app/main.go \
-				cmd/app/public/images \
-				cmd/app/public/js \
-				cmd/app/public/css \
+				cmd/blog/main.go \
+				cmd/blog/public/images \
+				cmd/blog/public/js \
+				cmd/blog/public/css \
 				cmd/gen | \
 				entr -r make run
 

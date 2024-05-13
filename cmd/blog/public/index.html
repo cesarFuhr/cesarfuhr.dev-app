@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/css/theme.css" />
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="/css/prism.css" />
+
+    <title>Packaging Bash Wth Nix - cesarFuhr.dev</title>
+    <meta name="author" content="César Fuhr">
+    <meta name="image" property="og:image" content="/images/cesar_gopher.png">
+    <meta name="publish_date" property="og:publish_date" content="2024-05-03">
+    <link rel="icon" href="/images/cesar_gopher.ico">
+  </head>
+
+  <body>
+    <a id="top"></a>
+    <input id="dark-theme" class="theme-box" name="theme" type="radio">
+    <input id="light-theme" class="theme-box" name="theme" type="radio">
+    <div class="theme-wrap">
+      <nav class="navbar-wrapper">
+        <ul class="navbar" id="navbar">
+          <li class="navbar-header">
+            <div class="navbar-brand">
+              <a class="nav-link" href="/">
+                <img src="/images/cesar_gopher.png" id="gopher"/>
+              </a>
+              <a class="nav-link" href="/">cesarfuhr.dev</a>
+            </div>
+            <a class="nav-icon" href="javascript:void(0)" onclick="dropMenu()">||</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/archive.html">Archive</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/about.html">About</a>
+          </li>
+          <!--- <li class="nav-item">
+            <a class="nav-link" href="cesarfuhr.rss">RSS</a>
+            </li> --->
+          <li class="nav-item">
+            <div class="nav-theme">
+              <label id="dark-label" for="dark-theme"></label>
+              <label id="light-label" for="light-theme"></label>
+            <div>
+          </li>
+        </ul>
+      </nav>
+
+      <main>
+
+        <h5 id="may-3rd-2024">May 3rd, 2024</h5>
+
+<h1 id="packaging-bash-with-nix">Packaging bash with Nix</h1>
+
+<h4 id="packaging-some-simple-note-taking-scripts-with-nix-shouldn-t-be-so-hard-right-right">Packaging some simple note taking scripts with Nix shouldn&rsquo;t be so hard right? right?</h4>
+
+<p>So, I have been trying to find a note taking app that suites my needs for a while. After some search, trying out some GUI based apps, with sync, without sync&hellip; I got tired of searching and overwhelmed with so many options, ended up deciding to build something simple, but something that would work for me.</p>
+
+<p>I wanted my app to be:</p>
+
+<ul>
+<li>Fast to access</li>
+<li>Fast to search</li>
+<li>Support Markdown format</li>
+<li>Support some sort of task management</li>
+<li>Support notes name spacing (I want to be able to have work and personal notes separate)</li>
+<li>And (the killer feature) support vim motions</li>
+</ul>
+
+<p>But wait a second, isn&rsquo;t this blog post about a couple of simple bash scripts? Yes it is!</p>
+
+<h5 id="note-if-you-want-to-skip-the-article-and-just-see-the-code-check-it-out-here-https-github-com-cesarfuhr-notes-script"><strong>Note:</strong> If you want to skip the article and just see the code, check it out <a href="https://github.com/cesarFuhr/notes-script" target="_blank">here</a>.</h5>
+
+<h2 id="the-fabulous-app">The fabulous &ldquo;app&rdquo;</h2>
+
+<p>Lets review the list of requirements:</p>
+
+<blockquote>
+<p>Fast to access</p>
+</blockquote>
+
+<p>This means it should be local and TUI, otherwise I would need to write a service&hellip; That doesn&rsquo;t sound very simple.</p>
+
+<blockquote>
+<p>Fast to search</p>
+</blockquote>
+
+<p>Having a bunch of local files makes it pretty easy to search with simple bash tools like <code>find</code>, <code>grep</code> or <code>rg</code>.</p>
+
+<blockquote>
+<p>Support Markdown format</p>
+</blockquote>
+
+<p>Well&hellip; It&rsquo;s not like it needs to support markdown previews, it&rsquo;s more of <em>should not prevent me</em> of using such format. So any plain text file should do it.</p>
+
+<blockquote>
+<p>Support some sort of task management</p>
+</blockquote>
+
+<p>Ok, now its going to force me to write a real app isn&rsquo;t it? Well, no. I can probably get away with some simple convention, like <code>[ ]</code> this is something that should be done eventually and <code>[x]</code> is something already done. Basically using what Markdown already gives me.</p>
+
+<blockquote>
+<p>Support notes name spacing</p>
+</blockquote>
+
+<p>This looks like a great application for my amazing ground breaking feature: File Directories!</p>
+
+<blockquote>
+<p>And support for vim motions</p>
+</blockquote>
+
+<p>What I need is to use a terminal based, fast and configurable editor. Why not Neovim (my editor of choice)? I will admit it&hellip; It is kinda cheating.</p>
+
+<p>Lately I am trying to get more proficient with bash and the command line, so I thought to myself: what if I just bashed (pun intended) together a couple of scripts and called it a day?</p>
+
+<p>Usually I like to aggregate my notes for a day in the same file, this keeps them organized and pretty easy to locate. I also would like to be able to know the month and year of the note, but that (to me) looks more like directories. So, putting it all together, this little script was born.</p>
+
+<pre><code class="language-bash"># This is the name spacing &quot;feature&quot;.
+# I am assuming personal here if no other namespace was gives 
+# as the first argument.
+SUBJECT=&quot;personal&quot;
+if [ -n &quot;$1&quot; ]; then
+  SUBJECT=$1
+fi
+
+# Then I compose the file name and directory.
+NOTES_DIR=$(date +&quot;%Y/%m&quot;)
+FILE=$(date +&quot;%d&quot;)
+
+# Make sure the directory path exists and move to it.
+mkdir -p ~/.notes/$SUBJECT &amp;&amp; pushd $_ &gt; /dev/null &amp;&amp; mkdir -p $NOTES_DIR
+
+# Call the editor for the notes file.
+$EDITOR &quot;./${NOTES_DIR}/${FILE}.md&quot;
+
+# Move the current directory to the original caller directory.
+popd &gt; /dev/null
+</code></pre>
+
+<p>Yes, really simple, but that was the point. To navigate in the notes I use a fuzzy finder inside Neovim and I am ready to go. Notes taking part is done, lets see what we can do with the task &ldquo;management&rdquo; part.</p>
+
+<p>My plan was to use a convention following Markdown checkboxes syntax. What I need is something that will find and show me in a simple way the tasks I have and in witch note file it lives. I also need something to show me the ones that are done.</p>
+
+<p>The show me what to do script:</p>
+
+<pre><code class="language-bash"># Same name spacing with directories.
+SUBJECT=&quot;personal&quot;
+if [ -n &quot;$1&quot; ]; then
+  SUBJECT=$1
+fi
+
+# Move to the subject folder.
+pushd ~/.notes/$SUBJECT &gt; /dev/null &amp;&amp; \
+  rg --pretty '\[ \]' . &amp;&amp; \ # Scan with `rg`.
+  popd &gt; /dev/null # Move back to the callers directory.
+</code></pre>
+
+<p>And the show what I have done script:</p>
+
+<pre><code class="language-bash"># Same name spacing with directories.
+SUBJECT=&quot;personal&quot;
+if [ -n &quot;$1&quot; ]; then
+  SUBJECT=$1
+fi
+
+# Move to the subject folder.
+pushd ~/.notes/$SUBJECT &gt; /dev/null &amp;&amp; \
+  rg --pretty '\[x\]' . &amp;&amp; \ # Scan for completed checkboxes.
+  popd &gt; /dev/null # Move back to the callers directory.
+</code></pre>
+
+<p>And that&rsquo;s it! That is all I needed&hellip; But I really wanted to integrate this seamlessly with OS and package it in a way I could bundle all the dependencies with it.</p>
+
+<h2 id="nix-for-the-rescue">Nix for the rescue</h2>
+
+<p>I am using NixOS as my daily driver for more than two years now, but never had packaged anything but dev shells with it yet. This was a great opportunity to exercise my Nix brain cells and also dive a little deeper into a functional language.</p>
+
+<p>Nix is a functional declarative language developed to tackle the software building problem (its also a package manager and build tool). Although I am used to run and manage my NixOS configuration and some development shells, actually packaging a piece of software was a new thing to me. Being the kind of person I am, I imposed two extra restrictions on myself:</p>
+
+<ul>
+<li>Only use pure nix and the Nix <a href="https://nixos.org/manual/nix/stable/language/builtins.html" target="_blank">builtins</a>, don&rsquo;t rely on any external packages.</li>
+<li>Use the flake experimental (but pretty much stable) feature.</li>
+</ul>
+
+<p>Let&rsquo;s start by building the binaries, which is a our smallest scope, then increase the scope to arrive at the final Nix package. To do that we need to define a function to create the individual package.</p>
+
+<pre><code class="language-nix">pack = ({ packageName, buildInputs }:
+  let
+    p = import nixpkgs { system = system; };
+
+    script = (p.writeScriptBin packageName (builtins.readFile ./${packageName}.sh))
+        .overrideAttrs (old: { buildCommand = &quot;${old.buildCommand}\n patchShebangs $out&quot;; });
+  in
+  p.symlinkJoin {
+    name = packageName;
+    paths = [ script ] ++ buildInputs;
+    buildInputs = [ p.makeWrapper ];
+    postBuild = &quot;wrapProgram $out/bin/${packageName} --prefix PATH : $out/bin&quot;;
+  });
+</code></pre>
+
+<p>This little snippet of code will create a Nix package based on a <code>packageName</code> and the packages <code>buildInputs</code>. It also has an indirect dependency with <code>nixpkgs</code>, which by itself is dependant on the <code>system</code> variable, but lets not focus on that right now. The following two lines are what is actually building the script into an executable, linking and wrapping the bash script into an executable in the nix store <code>bin</code> directory. All the <code>p.{function_name}</code> calls are nix packages available (something like a standard library, you can check their docs <a href="https://nixos.org/manual/nixpkgs/stable/" target="_blank">here</a>) through <code>nixpkgs</code>.</p>
+
+<pre><code class="language-nix">    script = (p.writeScriptBin packageName (builtins.readFile ./${packageName}.sh))
+        .overrideAttrs (old: { buildCommand = &quot;${old.buildCommand}\n patchShebangs $out&quot;; });
+</code></pre>
+
+<p>Then, since we are building such a simple application, what we need to do is just package it. <code>p.symlinkJoin</code> will gather all the build inputs (the script dependencies) and the script itself and create a single folder with all the links. Then we use <code>wrapProgram</code> function to make sure the app will be available in your PATH after installation.</p>
+
+<p>With the packaging function defined we can build the system specific copy of our notes app and inject them in the final derivation. Nix expects the result of the evaluation to be an <a href="https://nixos.org/manual/nix/stable/language/values#attribute-set" target="_blank">attribute set</a>, where for every supported <a href="https://nixos.org/manual/nix/stable/language/derivations#attr-system" target="_blank">system</a> there should be a <a href="https://nixos.org/manual/nix/stable/language/derivations" target="_blank">derivation</a> of the app. This is where the <code>builtins</code> come in handy, they help us with mapping the data into different formats to achieve the needed result spec.</p>
+
+<pre><code class="language-nix">{
+  description = &quot;A very basic note taking script&quot;;
+  outputs = inputs@{ self, nixpkgs }:
+    let
+      systems = [
+        &quot;x86_64-linux&quot;
+        &quot;aarch64-linux&quot;
+        &quot;x86_64-darwin&quot;
+        &quot;aarch64-darwin&quot;
+      ];
+    in
+    {
+      packages = builtins.listToAttrs
+        (builtins.map
+          (system:
+            let
+              p = import nixpkgs { system = system; };
+
+              pack = ({ packageName, buildInputs }: /* We covered this function already. */ });
+            in
+            {
+              name = system;
+              value = rec {
+                default = notes;
+                notes = pack { packageName = &quot;notes&quot;; buildInputs = [ p.coreutils ]; };
+                todo = pack { packageName = &quot;todo&quot;; buildInputs = [ p.coreutils p.ripgrep ]; };
+                todo-done = pack { packageName = &quot;todo-done&quot;; buildInputs = [ p.coreutils p.ripgrep ]; };
+              };
+            })
+          systems);
+    };
+}
+</code></pre>
+
+<p>The first thing we do, is define the list of systems we will support. We will map this list into the final distribution, making the app available to these systems.</p>
+
+<pre><code class="language-nix">let
+  systems = [
+    &quot;x86_64-linux&quot;
+    &quot;aarch64-linux&quot;
+    &quot;x86_64-darwin&quot;
+    &quot;aarch64-darwin&quot;
+  ];
+in
+</code></pre>
+
+<p>Now we need to declare the building process of the app, which will expose three commands <code>notes</code>, <code>todo</code> and <code>todo-done</code>. This is done by the <code>builtins.map</code> function, that receives a mapping function and a <a href="https://nixos.org/manual/nix/stable/language/values#list" target="_blank">list</a> and applies that function to every element, returning the resulting list of transformed elements.</p>
+
+<pre><code class="language-nix">(builtins.map
+  (system:
+    let
+      p = import nixpkgs { system = system; };
+
+      pack = ({ packageName, buildInputs }: /* We covered this function already. */ });
+    in
+    {
+      name = system;
+      value = rec {
+        default = notes;
+        notes = pack { packageName = &quot;notes&quot;; buildInputs = [ p.coreutils ]; };
+        todo = pack { packageName = &quot;todo&quot;; buildInputs = [ p.coreutils p.ripgrep ]; };
+        todo-done = pack { packageName = &quot;todo-done&quot;; buildInputs = [ p.coreutils p.ripgrep ]; };
+      };
+    })
+</code></pre>
+
+<p>Each element inside the list returned by the <code>builtins.map</code> function is a set with the following form:</p>
+
+<pre><code class="language-nix">{
+    name = &quot;system-name&quot;;
+    value = {
+        default = notes;
+        notes = notes_package;
+        todo = todo_package;
+        todo-done = todo-done_package;
+    };
+}
+</code></pre>
+
+<p>We need such arrangement to feed it into <code>builtins.listToAttrs</code>, which receives a list of attribute sets with <code>name</code> and <code>value</code> attributes and reduces them into an attribute set, where the keys will be the <code>name</code>s and the values will the <code>value</code>s of the list elements. The end result will be an set such as this:</p>
+
+<pre><code class="language-nix">{
+    &quot;system-0&quot; = {
+        default = notes;
+        notes = notes_package;
+        todo = todo_package;
+        todo-done = todo-done_package;
+    };
+#       .   
+#       .   
+#       .   
+    &quot;system-N&quot; = {
+        default = notes;
+        notes = notes_package;
+        todo = todo_package;
+        todo-done = todo-done_package;
+    };
+}
+</code></pre>
+
+<p>Then we define this attribute set as the <code>packages</code> attribute value in the final set. Executing <code>nix flake show</code> we will get the following output for a <code>x86_64-linux</code> machine:</p>
+
+<pre><code class="language-bash">$ nix flake show
+git+file:///path/to/project/notes?ref=refs/heads/main&amp;rev=fcf77dbb83cd3c22cac6a1358365d234ed20627d
+└───packages
+    ├───aarch64-darwin
+    │   ├───default omitted (use '--all-systems' to show)
+    │   ├───notes omitted (use '--all-systems' to show)
+    │   ├───todo omitted (use '--all-systems' to show)
+    │   └───todo-done omitted (use '--all-systems' to show)
+    ├───aarch64-linux
+    │   ├───default omitted (use '--all-systems' to show)
+    │   ├───notes omitted (use '--all-systems' to show)
+    │   ├───todo omitted (use '--all-systems' to show)
+    │   └───todo-done omitted (use '--all-systems' to show)
+    ├───x86_64-darwin
+    │   ├───default omitted (use '--all-systems' to show)
+    │   ├───notes omitted (use '--all-systems' to show)
+    │   ├───todo omitted (use '--all-systems' to show)
+    │   └───todo-done omitted (use '--all-systems' to show)
+    └───x86_64-linux
+        ├───default: package 'notes'
+        ├───notes: package 'notes'
+        ├───todo: package 'todo'
+        └───todo-done: package 'todo-done'
+</code></pre>
+
+<p>Now we can run the app running <code>nix run .#notes</code> or any of the other binaries built in this derivation with all its dependencies bundled with it.</p>
+
+<h2 id="conclusions">Conclusions</h2>
+
+<p>I use this notes app everyday, it serves me well, but I know I have a lot of opinions built into it. NeoVim, local files and bash, these are all choices that are aligned with a movement towards using linux tools I am into now. Building the &ldquo;app&rdquo; was pretty fun, only needed a few iterations and already landed on a pretty usable thing. Nix on the other hand was not easy to grasp, especially with the restrictions I made to the project. Documentation is not easily discoverable, <code>nix</code> as a build tool doesn&rsquo;t have good error messages and <code>nix</code> language being functional and declarative were some interesting challenges to me.</p>
+
+<p>In the end I think it was worth it, now I can easily integrate it with my <a href="https://github.com/cesarFuhr/cesarOS" target="_blank">NixOS configuration</a> and have it always baked in my system. As a next step in my Nix journey I would like to package a Go application with it, having all its dependencies versioned with Nix and a ready to use development shell.</p>
+
+
+        <footer>
+          <a href="/blog/distributed_rate_limiting_in_go.html">prev</a>
+          <a href="#top">top</a>
+          
+        </footer>
+
+      </main>
+
+      <script src="/js/dropMenu.js"  type="text/javascript"></script>
+      <script src="/js/prism.js"     type="text/javascript"></script>
+    </div>
+  </body>
+</html>

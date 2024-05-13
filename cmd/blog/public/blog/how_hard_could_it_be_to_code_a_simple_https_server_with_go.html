@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/css/theme.css" />
+    <link rel="stylesheet" type="text/css" href="/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="/css/prism.css" />
+
+    <title>How Hard Could It Be To Code A Simple Https Server With Go - cesarFuhr.dev</title>
+    <meta name="author" content="César Fuhr">
+    <meta name="image" property="og:image" content="/images/cesar_gopher.png">
+    <meta name="publish_date" property="og:publish_date" content="2021-12-20">
+    <link rel="icon" href="/images/cesar_gopher.ico">
+  </head>
+
+  <body>
+    <a id="top"></a>
+    <input id="dark-theme" class="theme-box" name="theme" type="radio">
+    <input id="light-theme" class="theme-box" name="theme" type="radio">
+    <div class="theme-wrap">
+      <nav class="navbar-wrapper">
+        <ul class="navbar" id="navbar">
+          <li class="navbar-header">
+            <div class="navbar-brand">
+              <a class="nav-link" href="/">
+                <img src="/images/cesar_gopher.png" id="gopher"/>
+              </a>
+              <a class="nav-link" href="/">cesarfuhr.dev</a>
+            </div>
+            <a class="nav-icon" href="javascript:void(0)" onclick="dropMenu()">||</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/archive.html">Archive</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/about.html">About</a>
+          </li>
+          <!--- <li class="nav-item">
+            <a class="nav-link" href="cesarfuhr.rss">RSS</a>
+            </li> --->
+          <li class="nav-item">
+            <div class="nav-theme">
+              <label id="dark-label" for="dark-theme"></label>
+              <label id="light-label" for="light-theme"></label>
+            <div>
+          </li>
+        </ul>
+      </nav>
+
+      <main>
+
+        <h5 id="december-20th-2021">December 20th, 2021</h5>
+
+<h1 id="how-hard-could-it-be-to-code-a-simple-https-server-with-go">How hard could it be to code a simple HTTPS server with Go?</h1>
+
+<h4 id="the-short-answer-actually-pretty-easy">The short answer: actually pretty easy&hellip;</h4>
+
+<p>In the last weeks I&rsquo;ve been thinking about this little project that I&rsquo;m working on, which is my own personal blog. I read about having a portfolio page and it seemed like a good idea, but, since I mainly work with backend, it could be quite challenging to find a way to showcase my work without exposing sensitive information of the projects I&rsquo;m part of.</p>
+
+<p>So, here I am, instead of going with an established media service, like Medium or LinkedIn, I decided to build my own website and, hopefully, turn it in a interesting resource to the devs out there. I know, I know this first paragraphs are not about HTTPS or TLS, or even Go, but I felt like, since this is my first post, I could talk a little about my motivations.</p>
+
+<p>I really dig into the simplicity mindset behind all things Go, still, when I started my personal blog project, I thought: &ldquo;this could be a nice opportunity to test my docker skills&rdquo;. And there I was, thinking about nginx and docker-compose&hellip;but&hellip;</p>
+
+<p>I am a Go developer after all, so how hard could it be to build it myself?</p>
+
+<p>Turns out its not hard at all&hellip;</p>
+
+<h2 id="the-long-answer">The long answer</h2>
+
+<p>Every time I stop to think about it, I am impressed by how much can be done with Go&rsquo;s standard library. It gives you many clean and extensible API&rsquo;s that can carry you a long way before you need to reach out for third party libraries and a HTTPS server is not a exception.</p>
+
+<p>If you ever coded any simple HTTP server in Go you are only a few lines away from the HTTPS implementation. Since I&rsquo;m not aiming to talk about how HTTPS guts work, I&rsquo;ll defer that to other articles, like <a href="https://en.wikipedia.org/wiki/HTTPS" target="_blank">this</a> (from Wikipedia itself) and <a href="https://eli.thegreenplace.net/2021/go-https-servers-with-tls/" target="_blank">this</a> (written by <a href="https://github.com/eliben" target="_blank">Eli Bendersky</a>). You can check that out if want to know more about HTTPS, but, in Go, the simplest form is as simple as a handler function definition and a function call.</p>
+
+<pre><code class="language-go">//main.go
+package main
+
+import (
+  &quot;io&quot;
+  &quot;log&quot;
+  &quot;net/http&quot;
+)
+
+const port = &quot;8443&quot;
+
+func main() {
+  http.HandleFunc(&quot;/&quot;, func(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, &quot;Hello, World!\n&quot;)
+  })
+
+  log.Printf(&quot;Starting server at port %s&quot;, port)
+  // Here you pass as parameters the certificate and key to be used.
+  // The last parameter is a http.Handler, if you pass nil the default
+  // http handler will be used.
+  err := http.ListenAndServeTLS(&quot;:&quot;+port, &quot;cert.pem&quot;, &quot;key.pem&quot;, nil)
+  log.Fatal(err)
+}
+</code></pre>
+
+<p>You may be asking yourself if this is capable of serving production or if it fits only a simple test server. Well, that&rsquo;s the beauty of Go&rsquo;s standard library, the solutions are really robust. I&rsquo;ve ran a little test using <a href="https://github.com/tsenart/vegeta" target="_blank">Vegeta</a>, my machine is not exactly a beefy one, but the results were no joke.</p>
+
+<pre><code>goos: linux
+goarch: amd64
+cpu: Intel(R) Core(TM) i5-8265U CPU @ 1.60GHz
+
+Requests      [total, rate, throughput]         150000, 5000.03, 5000.01
+Duration      [total, attack, wait]             30s, 30s, 121.729µs
+Latencies     [min, mean, 50, 90, 95, 99, max]  67.644µs, 137.152µs, 108.307µs, 123.25µs, 129.877µs, 280.893µs, 37.418ms
+Bytes In      [total, mean]                     2100000, 14.00
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           100.00%
+Status Codes  [code:count]                      200:150000
+Error Set:
+</code></pre>
+
+<h2 id="multiple-certificates">Multiple certificates</h2>
+
+<p>This is all great, but what if you wanted to serve two different domains with the same Go program?</p>
+
+<p>Not a problem, Go standard library supports multiple certificates. It is not only supported, but the standard library implementation will select the correct certificate for the requested URL. I used this feature to implement the &ldquo;wildcard&rdquo; and the &ldquo;naked&rdquo; domains in my server (that is serving you this blog post right now&hellip;).</p>
+
+<pre><code class="language-go">//main.go
+package main
+
+import (
+  &quot;crypto/tls&quot;
+  &quot;fmt&quot;
+  &quot;log&quot;
+  &quot;net/http&quot;
+)
+
+const port = &quot;8443&quot;
+
+func main() {
+  var mux http.ServeMux
+  mux.HandleFunc(&quot;/&quot;, func(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, &quot;Hello, world over HTTPS!\n&quot;)
+  })
+
+  var certs []tls.Certificate
+
+  // The certicate and key files must contain PEM encoded data.
+  cert, err := tls.LoadX509KeyPair(&quot;first.crt.pem&quot;, &quot;first.key.pem&quot;)
+  if err != nil {
+    log.Fatal(err)
+  }
+  certs = append(certs, cert)
+
+  cert, err = tls.LoadX509KeyPair(&quot;second.crt.pem&quot;, &quot;second.key.pem&quot;)
+  if err != nil {
+    log.Fatal(err)
+  }
+  certs = append(certs, cert)
+
+  tlsConfig := &amp;tls.Config{
+    // If you have any restrictions on TLS version you can use this
+    // option.
+    MinVersion:               tls.VersionTLS12,
+    PreferServerCipherSuites: true,
+    // Here we pass the certificates we loaded.
+    Certificates: certs,
+  }
+
+  // Here we create the http server as usual, but set the TLSConfig
+  // property to the one we created before.
+  server := http.Server{
+    Addr:      &quot;:&quot; + port,
+    Handler:   &amp;mux,
+    TLSConfig: tlsConfig,
+  }
+
+  log.Printf(&quot;Starting server at port %s&quot;, port)
+  // Since the certs are referenced inside the TLSConfig struct, we
+  // can start the server passing empty strings as the arguments.
+  err = server.ListenAndServeTLS(&quot;&quot;, &quot;&quot;)
+  log.Fatal(err)
+}
+</code></pre>
+
+<h2 id="bonus-all-in-one-binary"><strong>Bonus</strong>: All in one binary</h2>
+
+<p>If you miss the days where deploying an application was simply to copy some files to the server, this next section is for you.</p>
+
+<p>Since <a href="https://go.dev/doc/go1.16" target="_blank">1.16</a> Go has a feature that I&rsquo;m in love with: Embed. Long story short, embed gives you the possibility of including static files on the final binary. This means that, instead of copying a bunch of files around, you could embed the files in the binary and have a single file to copy to your server in order to run your program (in our https server you should be careful with this file since it has the private key inside it).</p>
+
+<p>Embed is such a simple and effective tool that I&rsquo;m not only using for my certificates, but also for the actual public files of this website. It is a way of having a web server without it having access to the file system, which is a nice security feature. As I said before, really enjoy using it. Here is a simple code snippet of how to do it in our little server experiment.</p>
+
+<pre><code class="language-go">//main.go
+package main
+
+import (
+  &quot;crypto/tls&quot;
+  _ &quot;embed&quot;
+  &quot;fmt&quot;
+  &quot;log&quot;
+  &quot;net/http&quot;
+)
+
+const port = &quot;8443&quot;
+
+// Go embed uses directives to give you access to the functionality.
+// After it you should write the path to the file you want to embed.
+// This can also be done with directories, check it here:
+// https://pkg.go.dev/embed#hdr-File_Systems
+
+//go:embed first.crt.pem
+var firstCrt []byte
+
+//go:embed first.key.pem
+var firstKey []byte
+
+//go:embed second.crt.pem
+var secondCrt []byte
+
+//go:embed second.key.pem
+var secondKey []byte
+
+func main() {
+  var mux http.ServeMux
+  mux.HandleFunc(&quot;/&quot;, func(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprintf(w, &quot;Hello, world over HTTPS!\n&quot;)
+  })
+
+  var certs []tls.Certificate
+
+  // Changed from LoadX509KeyPair to X509KeyPair so we can pass the
+  // bytes directly.
+  cert, err := tls.X509KeyPair(firstCrt, firstKey)
+  if err != nil {
+    log.Fatal(err)
+  }
+  certs = append(certs, cert)
+
+  cert, err = tls.X509KeyPair(secondCrt, secondKey)
+  if err != nil {
+    log.Fatal(err)
+  }
+  certs = append(certs, cert)
+
+  // Everything else stays the same!
+  .
+  .
+  .
+</code></pre>
+
+<p>Well, I feel like I have already gone little off topic here. So this must be a sign that I should end this post.</p>
+
+<p>I know this is no novelty, but this blog is not about bleeding edge knowledge about Go, it is about this unique experience of being a developer and overcoming challenges every day. I really hope this reading has been of good use to you.</p>
+
+
+        <footer>
+          
+          <a href="#top">top</a>
+          <a href="/blog/simple_rules_to_avoid_some_range_for_loop_pitfalls.html">next</a>
+        </footer>
+
+      </main>
+
+      <script src="/js/dropMenu.js"  type="text/javascript"></script>
+      <script src="/js/prism.js"     type="text/javascript"></script>
+    </div>
+  </body>
+</html>
