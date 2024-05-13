@@ -1,4 +1,4 @@
-blog: check pre
+build: check pre
 	CGO_ENABLED=0 go build -o main ./cmd/blog/
 
 run: build
@@ -23,16 +23,13 @@ docker-run: docker-build
 	docker run \
 		--name cesarfuhr.dev \
 		-p 8080:8080 \
-		cesarfuhr.dev:latest 
+		blog:latest 
 
 docker-build:
-	make build
-	docker build \
-		-f Dockerfile \
-		--tag cesarfuhr.dev \
- 		.
+	nix build '.#container'
+	docker load < ./result
 
 docker-clean:
 	docker stop cesarfuhr.dev
 	docker rm cesarfuhr.dev
-	docker rmi cesarfuhr.dev
+	docker rmi blog

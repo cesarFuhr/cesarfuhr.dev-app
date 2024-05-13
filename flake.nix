@@ -71,10 +71,11 @@
                 '';
               };
 
-            docker = p.dockerTools.buildImage {
+            container = p.dockerTools.buildImage {
               name = name;
+              tag = "latest";
               config = {
-                Cmd = [ "${p.hello}/bin/${name}" ];
+                Cmd = [ "${blog}/bin/${name}" ];
               };
             };
           })
