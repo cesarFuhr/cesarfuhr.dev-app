@@ -13,27 +13,30 @@
         "x86_64-darwin"
         "aarch64-darwin"
       ];
+
+      buildShell = (system: {
+        default =
+          let
+            p = import nixpkgs { system = system; };
+          in
+          p.mkShell {
+            buildInputs = [
+              p.flyctl
+              p.go
+              p.go-tools
+              p.gopls
+              p.gnumake
+            ];
+          };
+      });
     in
     {
       devShells = builtins.listToAttrs
         (builtins.map
           (system:
-            let
-              p = import nixpkgs { system = system; };
-            in
             {
               name = system;
-              value = {
-                default = p.mkShell {
-                  buildInputs = [
-                    p.flyctl
-                    p.go
-                    p.go-tools
-                    p.gopls
-                    p.gnumake
-                  ];
-                };
-              };
+              value = buildShell system;
             })
           systems);
     };
