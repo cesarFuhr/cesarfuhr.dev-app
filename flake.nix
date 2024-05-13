@@ -27,21 +27,38 @@
     in
     {
       devShells = systemsToAttrs
-        (system: {
-          default =
-            let
-              p = import nixpkgs { system = system; };
-            in
-            p.mkShell {
-              buildInputs = [
-                p.flyctl
-                p.go
-                p.go-tools
-                p.gopls
-                p.gnumake
-              ];
-            };
-        })
+        (system:
+          let
+            p = import nixpkgs { system = system; };
+          in
+          {
+            default =
+              p.mkShell {
+                buildInputs = [
+                  p.flyctl
+                  p.go
+                  p.go-tools
+                  p.gopls
+                  p.gnumake
+                ];
+              };
+          })
+        systems;
+
+      packages = systemsToAttrs
+        (system:
+          let
+            p = import nixpkgs { system = system; };
+          in
+          {
+            default = p.buildGoModule
+              {
+                name = "app";
+                vendorHash = "sha256-K6hdGsOjCJLx1nH69MHoTzV9tD05Gz4LdGGccCL1TOk=";
+                src = ./.;
+                CGO_ENABLED = 0;
+              };
+          })
         systems;
     };
 }

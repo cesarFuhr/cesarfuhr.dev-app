@@ -1,8 +1,5 @@
 tmp
-*.key
-*.crt
 main
-certs/*
 cmd/app/public/blog
 cmd/app/public/archive.html
 cmd/app/public/index.html
