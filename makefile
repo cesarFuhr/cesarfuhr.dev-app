@@ -19,7 +19,7 @@ watch:
 				cmd/gen | \
 				entr -r make run
 
-docker-run: docker-build
+docker-run: docker-clean docker-build
 	docker run \
 		--name cesarfuhr.dev \
 		-p 8080:8080 \
