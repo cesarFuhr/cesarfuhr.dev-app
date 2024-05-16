@@ -1,8 +1,8 @@
 tmp
 main
 result
-cmd/app/public/blog/*
-!cmd/app/public/blog/.gitkeep
-cmd/app/public/archive.html
-cmd/app/public/index.html
-cmd/app/public/about.html
+cmd/blog/public/blog/*
+!cmd/blog/public/blog/.gitkeep
+cmd/blog/public/archive.html
+cmd/blog/public/index.html
+cmd/blog/public/about.html
