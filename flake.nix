@@ -14,46 +14,43 @@
         "aarch64-darwin"
       ];
 
-      systemsToAttrs = (callback: elements: builtins.listToAttrs (
+      forEachSystem = (callback: builtins.listToAttrs (
         builtins.map
           (system:
+            let
+              pkgs = import nixpkgs { system = system; };
+            in
             {
               name = system;
-              value = callback system;
+              value = callback pkgs;
             })
-          elements
+          systems
       )
       );
     in
     {
-      devShells = systemsToAttrs
-        (system:
-          let
-            p = import nixpkgs { system = system; };
-          in
-          {
-            default =
-              p.mkShell {
-                buildInputs = [
-                  p.flyctl
-                  p.go
-                  p.go-tools
-                  p.gopls
-                  p.gnumake
-                ];
-              };
-          })
-        systems;
+      devShells = forEachSystem
+        (pkgs: {
+          default =
+            pkgs.mkShell {
+              buildInputs = [
+                pkgs.flyctl
+                pkgs.go
+                pkgs.go-tools
+                pkgs.gopls
+                pkgs.gnumake
+              ];
+            };
+        });
 
-      packages = systemsToAttrs
-        (system:
+      packages = forEachSystem
+        (pkgs:
           let
-            p = import nixpkgs { system = system; };
             name = "blog";
           in
           rec {
             default = blog;
-            blog = p.buildGoModule
+            blog = pkgs.buildGoModule
               {
                 name = name;
                 vendorHash = "sha256-K6hdGsOjCJLx1nH69MHoTzV9tD05Gz4LdGGccCL1TOk=";
@@ -67,14 +64,13 @@
                 '';
               };
 
-            container = p.dockerTools.buildImage {
+            container = pkgs.dockerTools.buildImage {
               name = name;
               tag = "latest";
               config = {
                 Cmd = [ "${blog}/bin/${name}" ];
               };
             };
-          })
-        systems;
+          });
     };
 }
