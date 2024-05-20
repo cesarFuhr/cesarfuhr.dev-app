@@ -1,5 +1,5 @@
 
-##### May 15th, 2024
+##### May 20th, 2024
 
 # Packaging Go with Nix
 #### I wonder what Go application should I wrap with Nix... 
