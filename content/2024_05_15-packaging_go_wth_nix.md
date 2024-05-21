@@ -31,7 +31,7 @@ I kept the same restrictions as the time I packaged the [bash scripts](http://lo
 The first thing I needed to know is how to build the Go code with its dependencies. To do that Nix packages already have a solution, based on the `go.mod` and `go.sum` file, `p.buildGoModule` build Go programs in two phases: first it fetches the all the external modules the app needs and "vendors" them in a intermediate derivation, after that it uses this intermediate derivation results to build the final output.
 
 ```nix
-blog = nixpkgs.buildGoModule
+blog = pkgs.buildGoModule
   {
     # Binary name.
     name = name;
@@ -61,7 +61,7 @@ This will create a derivation with the blog binary in it, ready to be ran. So le
 The next step is put it inside a container so I could deploy it to `fly`. Nix has a built in function to do that too, `p.dockerTools.buildImage` will receive a (almost one to one) configuration and create a minimal image, that only contains what the blog needs to run.
 
 ```nix
-container = p.dockerTools.buildImage {
+container = pkgs.dockerTools.buildImage {
   name = name;
   tag = "latest";
   config = {
@@ -75,26 +75,19 @@ container = p.dockerTools.buildImage {
 Running `nix build .#container` will build the image and set `result` (the file in the flake root directory) as the image tarball. You can load the image into your container runtime (if its docker) with: `docker load < result`. This takes care of the application and the deployment artifact, but if you would like to develop such application locally you would need: `go` and some `go-tools`, `make` and the `fly` CLI. `nix develop` is the Nix tool to create fully pinned and reproducible development shells, so lets declare not only how to build the Go binary but also whats needed to do that in the `devShells` attribute.
 
 ```nix
-devShells = systemsToAttrs
-  (system:
-    let
-      p = import nixpkgs { system = system; };
-    in
-    {
-      default =
-        p.mkShell {
-          # This is where you list your build dependencies.
-          # They will be available in your `nix develop` shell also.
-          buildInputs = [
-            p.flyctl
-            p.go
-            p.go-tools
-            p.gopls
-            p.gnumake
-          ];
-        };
-    })
-  systems;
+devShells = forEachSystem
+  (pkgs: {
+    default =
+      pkgs.mkShell {
+        buildInputs = [
+          pkgs.flyctl
+          pkgs.go
+          pkgs.go-tools
+          pkgs.gopls
+          pkgs.gnumake
+        ];
+      };
+  });
 ```
 
 ## Some final touches
