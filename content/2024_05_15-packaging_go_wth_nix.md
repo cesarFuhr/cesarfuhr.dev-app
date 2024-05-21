@@ -154,6 +154,6 @@ To clean the code and make the important things more recognizable I extracted mo
 }
 ```
 
-Well, as a second attempt of packaging something with Nix that wasn't bad at all. This time having some code to base the new implementation I felt it was way more approachable, to the point that I could even push a little further the refactoring of the system specific logic.
+Well, as a second attempt of packaging something with Nix that wasn't bad at all. This time, having some code to base the new implementation in, I felt it was way more approachable, to the point that I could even push a little further the refactoring of the system specific logic.
 
 Maybe I am getting the hang of it, I don't know. What I know is am enjoying this learning process, I wonder what would be the next thing I can point my Nix cannon to...
