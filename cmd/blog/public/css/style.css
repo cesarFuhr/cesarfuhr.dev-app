@@ -165,6 +165,7 @@ main blockquote {
   color: var(--fg-secondary);
   border-left: 0.15rem solid var(--highlight);
   padding: 0 0 0 1rem;
+  margin: 1rem;
 }
 
 main a {
@@ -174,7 +175,7 @@ main a {
 }
 
 main ul {
-  margin: 2rem 0;
+  padding: 2rem 0 2rem 1rem;
 }
 
 main li {
@@ -246,6 +247,15 @@ main p strong {
   main {
     margin: auto;
     padding: 1.5rem 5%;
+
+    ul {
+      padding: 0;
+      margin-left: 1rem;
+    }
+
+    blockquote {
+      margin-left: 1rem;
+    }
   }
 
   .navbar {
@@ -296,4 +306,3 @@ main p strong {
     padding-bottom: 1rem;
   }
 }
-
