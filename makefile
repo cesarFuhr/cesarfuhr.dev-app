@@ -1,4 +1,4 @@
-build: check pre
+build: pre check
 	CGO_ENABLED=0 go build -o main ./cmd/blog/
 
 run: build
