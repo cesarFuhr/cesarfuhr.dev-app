@@ -5,6 +5,7 @@ import (
 	"embed"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 	"text/template"
 	"time"
@@ -77,7 +78,9 @@ func main() {
 		}
 
 		unformatedTitle := strings.TrimSuffix(titleString, ".md")
-		destFileName := unformatedTitle + ".html"
+
+		sanitizeFilenames := regexp.MustCompile("[^A-z-_]+")
+		destFileName := sanitizeFilenames.ReplaceAllString(unformatedTitle, "") + ".html"
 
 		title := caser.String(strings.ReplaceAll(unformatedTitle, "_", " "))
 
