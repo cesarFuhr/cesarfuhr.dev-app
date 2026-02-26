@@ -5,7 +5,8 @@
     nixpkgs.url = "nixpkgs/nixos-unstable";
   };
 
-  outputs = inputs@{ nixpkgs, ... }:
+  outputs =
+    inputs@{ nixpkgs, ... }:
     let
       systems = [
         "x86_64-linux"
@@ -13,64 +14,56 @@
         "x86_64-darwin"
         "aarch64-darwin"
       ];
-
-      forEachSystem = (callback: builtins.listToAttrs (
-        builtins.map
-          (system:
-            let
-              pkgs = import nixpkgs { system = system; };
-            in
-            {
-              name = system;
-              value = callback pkgs;
-            })
-          systems
-      )
-      );
+      forAllSystems = f: nixpkgs.lib.genAttrs systems (system: f system);
     in
     {
-      devShells = forEachSystem
-        (pkgs: {
-          default =
-            pkgs.mkShell {
-              buildInputs = [
-                pkgs.flyctl
-                pkgs.go
-                pkgs.go-tools
-                pkgs.gopls
-                pkgs.gnumake
-              ];
+      devShells = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          default = pkgs.mkShell {
+            buildInputs = [
+              pkgs.flyctl
+              pkgs.go_1_26
+              pkgs.go-tools
+              pkgs.gopls
+              pkgs.gnumake
+            ];
+          };
+        }
+      );
+
+      packages = forAllSystems (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+          name = "blog";
+        in
+        rec {
+          default = blog;
+          blog = (pkgs.buildGoModule.override { go = pkgs.go_1_26; }) {
+            name = name;
+            vendorHash = null;
+            src = ./.;
+            subPackages = [ "cmd/blog" ];
+
+            env.CGO_ENABLED = 0;
+
+            preBuild = ''
+              make pre
+            '';
+          };
+
+          container = pkgs.dockerTools.buildImage {
+            name = name;
+            tag = "latest";
+            config = {
+              Cmd = [ "${blog}/bin/${name}" ];
             };
-        });
-
-      packages = forEachSystem
-        (pkgs:
-          let
-            name = "blog";
-          in
-          rec {
-            default = blog;
-            blog = pkgs.buildGoModule
-              {
-                name = name;
-                vendorHash = "sha256-K6hdGsOjCJLx1nH69MHoTzV9tD05Gz4LdGGccCL1TOk=";
-                src = ./.;
-                subPackages = [ "cmd/blog" ];
-
-                CGO_ENABLED = 0;
-
-                preBuild = ''
-                  make pre
-                '';
-              };
-
-            container = pkgs.dockerTools.buildImage {
-              name = name;
-              tag = "latest";
-              config = {
-                Cmd = [ "${blog}/bin/${name}" ];
-              };
-            };
-          });
+          };
+        }
+      );
     };
 }
